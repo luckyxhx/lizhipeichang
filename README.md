@@ -1,0 +1,195 @@
+# 离职赔偿计算系统
+
+移动端优先的纯前端 H5 工具。用户通过五步问答录入日期、工资、地区和解除情形，系统在浏览器本地生成“离职赔偿估算报告”，支持打印或保存为 PDF。
+
+## 技术栈
+
+- Vite + React 18 + TypeScript 严格模式
+- Tailwind CSS
+- react-hook-form + zod
+- date-fns
+- Vitest
+- 原生 `window.print()` 打印方案
+
+项目没有后端和数据库，不要求用户填写姓名、公司名、手机号或身份证号。
+
+## 本地运行
+
+要求 Node.js 18 或更高版本，推荐 Node.js 20。
+
+```bash
+npm install
+copy .env.example .env.local
+npm run dev
+```
+
+启动后访问终端显示的本地地址，并附上访问 token，例如：
+
+```text
+http://localhost:5173/?token=abc123
+```
+
+常用命令：
+
+```bash
+npm test
+npm run lint
+npm run format:check
+npm run build
+npm run preview
+```
+
+## 访问控制
+
+在 `.env.local` 或部署平台的环境变量中配置：
+
+```env
+VITE_ALLOWED_TOKENS=abc123,def456
+```
+
+规则：
+
+- 多个 token 用英文逗号分隔。
+- 访问链接必须带 `?token=...`。
+- token 不匹配、缺失或环境变量为空时，显示购买提示页。
+- 修改 token 后需要重新构建和部署，才能让新列表生效。
+
+生成随机 token 的 PowerShell 示例：
+
+```powershell
+[System.BitConverter]::ToString(
+  [System.Security.Cryptography.RandomNumberGenerator]::GetBytes(16)
+).Replace("-", "").ToLower()
+```
+
+生成后拼接链接：
+
+```text
+https://你的域名/?token=生成的token
+```
+
+### 安全边界
+
+当前方案是前端 token 校验，只能拦截普通用户误访问，不能阻止技术人员查看打包后的 JavaScript。不要把它理解为强授权系统。
+
+如果后续需要更强控制，建议升级为 Cloudflare Worker + KV：
+
+1. 请求先到 Worker。
+2. Worker 从 URL 读取 token，并在 KV 中检查有效性、有效期和是否已撤销。
+3. 校验通过后写入短期签名 Cookie，再返回静态页面。
+4. 前端不再保存 token 列表，可按订单生成、撤销和统计访问。
+
+## 部署
+
+### Vercel
+
+1. 将项目推送到 GitHub、GitLab 或 Bitbucket。
+2. 在 Vercel 中导入仓库。
+3. Framework Preset 选择 `Vite`。
+4. Build Command 使用 `npm run build`。
+5. Output Directory 使用 `dist`。
+6. 在 Project Settings 的 Environment Variables 中添加 `VITE_ALLOWED_TOKENS`。
+7. 部署后打开 `https://部署域名/?token=你的token` 验证。
+
+### Cloudflare Pages
+
+1. 在 Cloudflare Pages 中连接代码仓库。
+2. Build command 使用 `npm run build`。
+3. Build output directory 使用 `dist`。
+4. 在环境变量中添加 `VITE_ALLOWED_TOKENS`。
+5. 重新部署后验证带 token 和不带 token 两种访问情况。
+
+项目没有前端路由和重写规则，因此不需要额外的 `_redirects` 或 SPA fallback 配置。
+
+## 修改产品信息
+
+编辑 `src/config/product.ts`：
+
+- 产品名、价格提示、客服方式
+- 购买提示
+- 小红书店铺链接
+- 免责声明全文
+
+发布前至少替换客服方式和小红书店铺链接。
+
+## 新增或更新城市
+
+编辑 `src/data/regions.ts`，按现有结构增加：
+
+```ts
+{
+  city: "城市名",
+  province: "省或直辖市",
+  capMonthlyWage: 48000,
+  dataYear: "2025",
+  source: "当地人社或统计部门官方链接"
+}
+```
+
+`capMonthlyWage` 表示“当地上年度职工月平均工资的 3 倍”。用户选择城市后会自动带出该示例值，也可以手动覆盖。
+
+当前内置的北京、上海、广州、深圳、杭州、成都、武汉、南京、西安、郑州金额均为产品演示占位值，年份和来源没有核实，不能直接用于正式交付。上线前必须逐项替换为官方最新数据。
+
+## 更新法律规则
+
+集中修改以下文件：
+
+- `src/lib/legalRules.ts`：离职情形、N/N+1/2N/0 映射、条款摘要
+- `src/lib/calc.ts`：工作年限、工资基数、封顶和金额计算
+- `src/types/index.ts`：表单字段与离职原因类型
+- `src/lib/wizardSchema.ts`：表单校验
+- `src/lib/calc.test.ts`：新增或修改规则时同步补测试
+
+不要在报告组件里直接写计算逻辑。报告只展示 `calculateSeverance` 的结果，便于人工复核和回归测试。
+
+## 法律与产品待复核项
+
+以下内容已标为 TODO，发布商业版本前需要专业人员复核：
+
+- 十座城市的社平工资三倍封顶线、适用年份和官方来源，当前全部是示例数据。
+- 离职前 12 个月“应得工资”的具体口径，以及奖金、津贴、补贴的纳入和排除规则。
+- 不满 12 个月时平均工资的当地裁审口径。
+- 《劳动合同法》第 38 条各项情形与证据要求。
+- 未签书面劳动合同二倍工资的起止月份、计算基数和仲裁时效，目前不纳入主计算。
+- 加班费、年终奖、未休年假工资、工资欠款等独立请求的时效和计算方式，目前仅提示。
+- 违法解除时继续履行与 2N 赔偿金的选择策略。
+- 金额展示区间目前按基准金额上下浮动 20%，这是产品估算展示方式，不是法定区间。
+- 所有条款摘要均不是法条原文，正式报告应补充权威文本核对。
+
+如果输入事实与选项不完全匹配，应先标记为待人工复核，不要自行扩大解释。
+
+## 隐私与交付建议
+
+- 系统不会主动上传表单数据。
+- 不要在用户手填内容中加入姓名、公司名或联系方式。
+- token 会出现在浏览器地址栏和浏览历史中，应使用每个订单独立、难以猜测的 token。
+- 如需撤销某个 token，更新 `VITE_ALLOWED_TOKENS` 并重新部署；当前 MVP 会整体替换列表，无法单独标记历史订单。
+- 报告打印和复制功能由用户主动触发。
+
+## 测试覆盖
+
+`src/lib/calc.test.ts` 覆盖：
+
+- 工作 5 个月，N = 0.5
+- 工作 1 年 1 天，N = 1.5
+- 工作 2 年 7 个月，N = 3
+- 恰好 6 个月按 1 年计算
+- 月工资未封顶和封顶
+- 工作 15 年且封顶时，年限最高 12 年
+- N+1 仅在第 40 条三种情形且未提前 30 日通知时出现
+- 违法解除输出 2N，且不叠加 +1
+- 主动辞职和劳动者提出协商一致解除输出 0
+- 不满 12 个月时按实际月份平均工资计算
+
+最终验收命令：
+
+```bash
+npm run format:check
+npm run lint
+npm test
+npm run build
+```
+
+## 免责声明
+
+本系统提供的是基于用户自行填写信息的第一轮估算，不构成正式法律意见，也不能替代律师、劳动仲裁机构或人民法院结合完整证据作出的判断。正式使用前请完成法律复核，并在产品中保留完整免责声明。
