@@ -174,9 +174,9 @@ export const legalArticles: Record<number, LegalArticle> = {
   },
   82: {
     id: 82,
-    title: "未签书面劳动合同",
+    title: "未订立书面劳动合同的二倍工资",
     summary:
-      "未依法订立书面劳动合同的二倍工资属于另一项可单独评估的请求，本系统不计入主计算。仲裁时效需要单独判断。",
+      "用人单位自用工之日起超过一个月不满一年未与劳动者订立书面劳动合同的，应当向劳动者每月支付二倍工资。该事项属于可单独评估的请求，本系统不计入主计算，仲裁时效需要单独判断。",
     source: "《中华人民共和国劳动合同法》",
   },
   87: {
@@ -185,6 +185,160 @@ export const legalArticles: Record<number, LegalArticle> = {
     summary: "用人单位违法解除或终止劳动合同的，按经济补偿标准的二倍支付赔偿金。",
     source: "《中华人民共和国劳动合同法》",
   },
+};
+
+export type OfficialLegalSourceKey =
+  "labor-law" | "labor-contract-law" | "labor-dispute-law";
+
+export interface OfficialLegalSource {
+  key: OfficialLegalSourceKey;
+  title: string;
+  shortTitle: string;
+  versionNote: string;
+  effectiveDate: string;
+  officialUrl: string;
+}
+
+export const officialLegalSources: OfficialLegalSource[] = [
+  {
+    key: "labor-law",
+    title: "中华人民共和国劳动法",
+    shortTitle: "劳动法",
+    versionNote: "2018 年修正",
+    effectiveDate: "1995-01-01",
+    officialUrl: "https://flk.npc.gov.cn/detail?id=ff8080816f135f46016f20f16ee11737",
+  },
+  {
+    key: "labor-contract-law",
+    title: "中华人民共和国劳动合同法",
+    shortTitle: "劳动合同法",
+    versionNote: "2012 年修正",
+    effectiveDate: "2013-07-01",
+    officialUrl: "https://flk.npc.gov.cn/detail?id=2c909fdd678bf17901678bf74d7106b3",
+  },
+  {
+    key: "labor-dispute-law",
+    title: "中华人民共和国劳动争议调解仲裁法",
+    shortTitle: "劳动争议调解仲裁法",
+    versionNote: "2007 年通过",
+    effectiveDate: "2008-05-01",
+    officialUrl: "https://flk.npc.gov.cn/detail?id=2c909fdd678bf17901678bf64f28039d",
+  },
+];
+
+export interface SupportingLegalArticle {
+  id: string;
+  sourceKey: OfficialLegalSourceKey;
+  articleNumber: string;
+  title: string;
+  summary: string;
+  includeForRules?: CompensationRule[];
+  includeForReasons?: TerminationReason[];
+}
+
+export const supportingLegalArticles: SupportingLegalArticle[] = [
+  {
+    id: "labor-law-26",
+    sourceKey: "labor-law",
+    articleNumber: "第二十六条",
+    title: "提前三十日书面通知解除",
+    summary:
+      "医疗期满不能工作、不能胜任且经培训或调岗后仍不能胜任、客观情况重大变化协商不成三种情形下，用人单位可以解除劳动合同，但应当提前三十日以书面形式通知劳动者本人。",
+    includeForReasons: ["incompetence", "medical_expiry", "objective_change"],
+  },
+  {
+    id: "labor-law-28",
+    sourceKey: "labor-law",
+    articleNumber: "第二十八条",
+    title: "经济补偿",
+    summary:
+      "用人单位依据本法第二十四条、第二十六条、第二十七条规定解除劳动合同的，应当依照国家有关规定给予经济补偿。",
+    includeForRules: ["N", "N+1"],
+  },
+  {
+    id: "labor-law-32",
+    sourceKey: "labor-law",
+    articleNumber: "第三十二条",
+    title: "劳动者随时通知解除",
+    summary:
+      "在试用期内，或用人单位以暴力、威胁、非法限制人身自由手段强迫劳动，或未按约定支付劳动报酬、提供劳动条件时，劳动者可以随时通知用人单位解除劳动合同。",
+    includeForReasons: ["company_fault"],
+  },
+  {
+    id: "labor-law-44",
+    sourceKey: "labor-law",
+    articleNumber: "第四十四条",
+    title: "加班工资标准",
+    summary:
+      "安排延长工作时间、休息日工作且不能补休、法定休假日工作的，分别按不低于工资的 150%、200%、300% 支付工资报酬。",
+  },
+  {
+    id: "labor-law-45",
+    sourceKey: "labor-law",
+    articleNumber: "第四十五条",
+    title: "带薪年休假",
+    summary: "国家实行带薪年休假制度，劳动者连续工作一年以上的，享受带薪年休假。",
+  },
+  {
+    id: "labor-dispute-law-5",
+    sourceKey: "labor-dispute-law",
+    articleNumber: "第五条",
+    title: "协商、调解、仲裁、诉讼",
+    summary:
+      "发生劳动争议后，当事人可以协商、申请调解；不愿调解、调解不成或调解协议不履行的，可以申请仲裁；对仲裁裁决不服的，除法律另有规定外，可以依法起诉。",
+  },
+  {
+    id: "labor-dispute-law-6",
+    sourceKey: "labor-dispute-law",
+    articleNumber: "第六条",
+    title: "举证责任",
+    summary:
+      "当事人对自己提出的主张有责任提供证据。与争议事项有关的证据属于用人单位掌握管理的，用人单位应当提供；不提供的，应当承担不利后果。",
+  },
+  {
+    id: "labor-dispute-law-21",
+    sourceKey: "labor-dispute-law",
+    articleNumber: "第二十一条",
+    title: "仲裁管辖",
+    summary:
+      "劳动争议由劳动合同履行地或者用人单位所在地的劳动争议仲裁委员会管辖；双方分别申请的，由劳动合同履行地仲裁委员会管辖。",
+  },
+  {
+    id: "labor-dispute-law-27",
+    sourceKey: "labor-dispute-law",
+    articleNumber: "第二十七条",
+    title: "仲裁时效",
+    summary:
+      "劳动争议申请仲裁的时效期间为一年，自当事人知道或者应当知道其权利被侵害之日起计算；时效存在中断、中止规则。劳动关系存续期间因拖欠劳动报酬发生争议的，有特别规则；劳动关系终止后，一般应自终止之日起一年内提出。",
+  },
+  {
+    id: "labor-dispute-law-53",
+    sourceKey: "labor-dispute-law",
+    articleNumber: "第五十三条",
+    title: "仲裁不收费",
+    summary: "劳动争议仲裁不收费，劳动争议仲裁委员会的经费由财政予以保障。",
+  },
+];
+
+export const getSupportingLegalArticles = (
+  rule: CompensationRule,
+  reason: TerminationReason,
+): SupportingLegalArticle[] =>
+  supportingLegalArticles.filter(
+    (article) =>
+      (!article.includeForRules || article.includeForRules.includes(rule)) &&
+      (!article.includeForReasons || article.includeForReasons.includes(reason)),
+  );
+
+export const getOfficialLegalSource = (
+  key: OfficialLegalSourceKey,
+): OfficialLegalSource => {
+  const source = officialLegalSources.find((item) => item.key === key);
+  if (!source) {
+    throw new Error(`Unknown official legal source: ${key}`);
+  }
+
+  return source;
 };
 
 export const getTerminationRule = (reason: TerminationReason): TerminationRule =>
