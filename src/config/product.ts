@@ -1,7 +1,6 @@
 export const product = {
   name: "离职赔偿计算系统",
   tagline: "用几分钟完成第一轮离职补偿估算",
-  priceNote: "价格以小红书店铺为准",
   supportContact: "请在小红书店铺联系客服（发布前请替换为真实联系方式）",
   purchaseHint: "购买后，客服会发送带访问 token 的专属链接。",
   storeUrl: "",

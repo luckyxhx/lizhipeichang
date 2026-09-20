@@ -22,7 +22,6 @@
     >
       开始估算
     </button>
-    <view class="price-note">{{product.priceNote}}</view>
   </view>
 
   <view class="section-label">报告包含</view>

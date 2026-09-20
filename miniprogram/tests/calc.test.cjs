@@ -8,6 +8,7 @@ const {
 } = require("../utils/legalRules");
 const { buildPdfArrayBuffer } = require("../utils/pdf");
 const regionTree = require("../data/regions");
+const { product } = require("../config/product");
 
 const makeInput = (overrides = {}) => ({
   startDate: "2024-01-01",
@@ -180,4 +181,9 @@ test("行政区数据包含省、地市、区县三级节点", () => {
   assert.equal(cityCount, 344);
   assert.equal(countyCount, 3311);
   assert.ok(regionTree.every((province) => province.cities.length > 0));
+});
+
+test("小程序内部定价为 9.9 元且页面不展示价格字段", () => {
+  assert.equal(product.purchasePrice, 9.9);
+  assert.equal(product.priceNote, undefined);
 });

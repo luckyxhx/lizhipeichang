@@ -79,13 +79,6 @@
   margin-top: 34rpx;
 }
 
-.price-note {
-  margin-top: 16rpx;
-  color: var(--color-text-muted);
-  font-size: 24rpx;
-  text-align: center;
-}
-
 .section-label {
   margin: 38rpx 4rpx 16rpx;
   color: var(--color-text-secondary);

@@ -1,7 +1,6 @@
 import { ArrowRight, Calculator, LockKeyhole, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
-import { product } from "@/config/product";
 
 interface HomeProps {
   onStart: () => void;
@@ -41,7 +40,6 @@ export const Home = ({ onStart }: HomeProps): JSX.Element => (
           开始估算
           <ArrowRight className="size-5" aria-hidden="true" />
         </Button>
-        <p className="mt-3 text-xs leading-5 text-slate-500">{product.priceNote}</p>
       </div>
     </section>
 

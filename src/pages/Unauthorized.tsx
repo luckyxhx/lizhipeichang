@@ -31,10 +31,6 @@ export const Unauthorized = ({ tokenConfigured }: UnauthorizedProps): JSX.Elemen
 
       <dl className="mt-6 divide-y divide-slate-200 border-y border-slate-200">
         <div className="grid gap-1 py-4 sm:grid-cols-[7rem_1fr]">
-          <dt className="text-sm font-semibold text-slate-700">价格提示</dt>
-          <dd className="text-sm text-slate-600">{product.priceNote}</dd>
-        </div>
-        <div className="grid gap-1 py-4 sm:grid-cols-[7rem_1fr]">
           <dt className="text-sm font-semibold text-slate-700">客服方式</dt>
           <dd className="text-sm text-slate-600">{product.supportContact}</dd>
         </div>
