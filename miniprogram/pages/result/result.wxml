@@ -1,12 +1,20 @@
 <view wx:if="{{ready}}" class="page">
   <view class="amount-card">
-    <text class="amount-kicker">初步适用 {{result.rule}}</text>
+    <view class="amount-head">
+      <text class="amount-kicker">初步适用 {{result.rule}}</text>
+      <text class="amount-status">本地计算</text>
+    </view>
     <text class="amount-label">预估赔偿总额区间</text>
     <text class="amount-value">{{view.range}}</text>
     <text class="amount-note">
-      基准金额 {{view.exactAmount}}；展示区间按基准金额上下浮动 20%，不是法定最低或最高金额。
+      基准金额 {{view.exactAmount}}。展示区间按基准金额上下浮动 20%，不是法定最低或最高金额。
     </text>
     <view class="amount-conclusion">{{result.legalConclusion}}</view>
+  </view>
+
+  <view class="report-intro">
+    <text class="report-intro-label">报告说明</text>
+    <text>以下内容根据你的输入生成。金额、条款和风险提示都需要结合真实证据复核。</text>
   </view>
 
   <view class="surface conclusion-card">
@@ -62,18 +70,19 @@
   <view class="surface section-card">
     <view class="section-heading">法律依据</view>
     <view class="section-subtitle">
-      条款摘要来自全国人大法规库，不替代法条原文。点击官方来源可复制链接。
+      条款摘要来自全国人大法规库，不替代法条原文。点击来源可以复制链接。
     </view>
-    <view
+    <button
       wx:for="{{view.officialLegalSources}}"
       wx:key="key"
       class="source-item"
+      hover-class="pressable-pressed"
       data-url="{{item.officialUrl}}"
       bindtap="copySource"
     >
       <text class="source-title">{{item.title}}</text>
       <text class="source-note">{{item.versionNote}} · 点击复制官方链接</text>
-    </view>
+    </button>
     <view
       wx:for="{{view.articles}}"
       wx:key="id"
@@ -94,6 +103,7 @@
 
   <view class="risk-card">
     <view class="section-heading">风险提示</view>
+    <view class="section-subtitle">先处理证据、程序和时效问题，再决定是否主张金额。</view>
     <view wx:for="{{result.warnings}}" wx:key="*this" class="risk-item">
       <view class="risk-dot"></view>
       <text>{{item}}</text>
@@ -103,7 +113,7 @@
   <view class="surface section-card">
     <view class="section-heading">维权行动清单</view>
     <label wx:for="{{checklist}}" wx:key="*this" class="check-item">
-      <checkbox color="#cf315f" />
+      <checkbox color="#0f766e" />
       <text>{{item}}</text>
     </label>
   </view>
@@ -113,9 +123,27 @@
   </view>
 
   <view class="result-actions">
-    <button class="primary-button" bindtap="copyReport">复制文本摘要</button>
-    <button class="secondary-button" open-type="share">分享给好友</button>
-    <button class="restart-button" bindtap="restart">重新计算</button>
+    <button
+      class="primary-button"
+      hover-class="primary-button-pressed"
+      bindtap="copyReport"
+    >
+      复制文本摘要
+    </button>
+    <button
+      class="secondary-button"
+      hover-class="secondary-button-pressed"
+      open-type="share"
+    >
+      分享给好友
+    </button>
+    <button
+      class="restart-button"
+      hover-class="pressable-pressed"
+      bindtap="restart"
+    >
+      重新计算
+    </button>
   </view>
 </view>
 

@@ -1,18 +1,34 @@
 <view class="page">
   <view class="hero surface">
-    <view class="hero-accent"></view>
-    <text class="hero-eyebrow">离职权益第一轮估算工具</text>
+    <view class="hero-rule"></view>
+    <view class="hero-meta">
+      <text class="hero-eyebrow">离职权益工具</text>
+      <text class="hero-badge">移动端</text>
+    </view>
     <view class="hero-title">{{product.name}}</view>
     <view class="hero-copy">
-      根据入职离职日期、工资基数和解除情形，生成金额区间、计算拆解、法律依据和行动清单。
+      填写在职时间、工资和解除情形，生成金额区间、计算拆解、法律依据和行动清单。
     </view>
-    <button class="primary-button hero-button" bindtap="start">开始估算</button>
+    <view class="flow-strip">
+      <view class="flow-item"><text class="flow-index">01</text>日期</view>
+      <view class="flow-item"><text class="flow-index">02</text>工资</view>
+      <view class="flow-item"><text class="flow-index">03</text>情形</view>
+      <view class="flow-item"><text class="flow-index">04</text>报告</view>
+    </view>
+    <button
+      class="primary-button hero-button"
+      hover-class="primary-button-pressed"
+      bindtap="start"
+    >
+      开始估算
+    </button>
     <view class="price-note">{{product.priceNote}}</view>
   </view>
 
+  <view class="section-label">报告包含</view>
   <view class="feature-list surface">
     <view wx:for="{{features}}" wx:key="title" class="feature-item">
-      <view class="feature-mark"></view>
+      <view class="feature-index">0{{index + 1}}</view>
       <view class="feature-content">
         <view class="feature-title">{{item.title}}</view>
         <view class="feature-copy">{{item.description}}</view>
@@ -21,7 +37,7 @@
   </view>
 
   <view class="notice">
-    本工具仅用于第一轮估算，不构成正式法律意见。正式使用前请更新地区数据并完成法律复核。
+    报告用于第一轮估算，不构成正式法律意见。地区数据和法律条款需要在上线前复核。
   </view>
 </view>
 

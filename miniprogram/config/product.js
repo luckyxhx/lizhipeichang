@@ -1,6 +1,6 @@
 const product = {
   name: "离职赔偿计算器",
-  tagline: "用几分钟完成第一轮离职补偿估算",
+  tagline: "根据日期、工资和解除情形，生成第一轮估算。",
   priceNote: "价格以小红书店铺为准",
   supportContact: "请通过店铺客服联系（发布前请替换）",
   disclaimer: [

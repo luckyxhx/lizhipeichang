@@ -1,9 +1,20 @@
-<view class="bar" bindtap="openDisclaimer">
+<button
+  class="bar"
+  hover-class="bar-pressed"
+  aria-label="查看免责声明"
+  bindtap="openDisclaimer"
+>
   <view class="bar-mark"></view>
   <text>查看免责声明</text>
-</view>
+</button>
 
-<view wx:if="{{open}}" class="overlay" bindtap="closeDisclaimer">
+<view
+  wx:if="{{open}}"
+  class="overlay"
+  aria-role="dialog"
+  aria-label="免责声明"
+  bindtap="closeDisclaimer"
+>
   <view class="sheet" catchtap="stopPropagation">
     <view class="sheet-head">
       <view>
