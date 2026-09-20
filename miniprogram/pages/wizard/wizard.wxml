@@ -74,13 +74,20 @@
     <block wx:if="{{step === 3}}">
       <view class="section-head">
         <text class="section-title">劳动合同履行地</text>
-        <text class="section-helper">城市会带出示例封顶线，你可以按官方数据手动修改。</text>
+        <text class="section-helper">按省、地市、区县三级选择。封顶线保持空白，由你填写官方标准。</text>
       </view>
       <view class="field">
-        <label class="field-label" for="regionCity">城市<text class="field-required">*</text></label>
-        <picker id="regionCity" mode="selector" range="{{regionNames}}" bindchange="onRegionChange">
+        <label class="field-label" for="regionCity">省 / 市 / 区县<text class="field-required">*</text></label>
+        <picker
+          id="regionCity"
+          mode="multiSelector"
+          range="{{regionPickerRange}}"
+          value="{{regionPickerValue}}"
+          bindcolumnchange="onRegionColumnChange"
+          bindchange="onRegionChange"
+        >
           <view class="picker-box {{form.regionCity ? '' : 'picker-placeholder'}}">
-            {{form.regionCity || '请选择城市'}}
+            {{form.regionCity || '请选择省 / 市 / 区县'}}
           </view>
         </picker>
       </view>
@@ -94,7 +101,20 @@
           placeholder="请输入三倍封顶线"
           bindinput="onCapInput"
         />
-        <text class="field-hint">当前内置城市均为示例数据，正式使用前请替换为官方最新数据。</text>
+        <text class="field-hint">留空后请填写。不同地区统计口径和适用年度可能不同。</text>
+      </view>
+      <view class="prompt-card">
+        <view class="prompt-title">不知道当地标准？</view>
+        <view class="prompt-copy">
+          复制查询提示词，粘贴到可用的大模型工具，查询当地人社局或统计局公布的官方数据。
+        </view>
+        <button
+          class="secondary-button prompt-button"
+          hover-class="secondary-button-pressed"
+          bindtap="copyLocalStandardPrompt"
+        >
+          复制当地标准查询提示词
+        </button>
       </view>
     </block>
 

@@ -6,6 +6,8 @@ const {
   getOfficialLegalSource,
   getSupportingLegalArticles,
 } = require("../utils/legalRules");
+const { buildPdfArrayBuffer } = require("../utils/pdf");
+const regionTree = require("../data/regions");
 
 const makeInput = (overrides = {}) => ({
   startDate: "2024-01-01",
@@ -143,4 +145,39 @@ test("官方法律来源和仲裁时效条款已接入", () => {
       (article) => article.id === "labor-dispute-law-27",
     ),
   );
+});
+
+test("PDF 生成器输出可预览的 PDF 结构", () => {
+  const report = [
+    "离职赔偿估算报告",
+    "适用结论：N+1",
+    "预估金额区间：¥100,000 - ¥120,000",
+    "风险提示：请保存证据，并在一年仲裁时效内处理。",
+  ].join("\n");
+  const bytes = buildPdfArrayBuffer(report);
+  const text = Buffer.from(bytes).toString("latin1");
+
+  assert.ok(bytes instanceof ArrayBuffer);
+  assert.match(text, /^%PDF-1\.4/);
+  assert.match(text, /\/Type \/Pages/);
+  assert.match(text, /\/BaseFont \/STSong-Light/);
+  assert.match(text, /%%EOF$/);
+});
+
+test("行政区数据包含省、地市、区县三级节点", () => {
+  const cityCount = regionTree.reduce(
+    (total, province) => total + province.cities.length,
+    0,
+  );
+  const countyCount = regionTree.reduce(
+    (provinceTotal, province) =>
+      provinceTotal +
+      province.cities.reduce((cityTotal, city) => cityTotal + city.counties.length, 0),
+    0,
+  );
+
+  assert.equal(regionTree.length, 34);
+  assert.equal(cityCount, 344);
+  assert.equal(countyCount, 3311);
+  assert.ok(regionTree.every((province) => province.cities.length > 0));
 });

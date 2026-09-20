@@ -1,4 +1,4 @@
-const { getRegionCap, regionCaps } = require("../../data/regions");
+const regionTree = require("../../data/regions");
 const { calculateSeverance } = require("../../utils/calc");
 const { getTerminationRule, terminationRules } = require("../../utils/legalRules");
 
@@ -16,18 +16,36 @@ const reasonOrder = [
   "serious_misconduct",
 ];
 
+const provinceNames = regionTree.map((province) => province.name);
+const firstProvince = regionTree[0];
+const firstCity = firstProvince.cities[0];
+
+const getCountyNames = (city) =>
+  city && city.counties.length > 0
+    ? city.counties.map((county) => county.name)
+    : ["暂无区县数据"];
+
+const buildLocalStandardPrompt = (regionPath) =>
+  `请查询${regionPath}最近一个已公布年度的“当地上年度职工月平均工资”，并计算其三倍封顶线。请注明统计口径、适用年度、发布机关和官方来源链接；如当地对经济补偿封顶另有明确裁审口径，请一并列出。只引用政府、人社局、统计局、法院等官方来源；没有查到就明确说明，不要估算。`;
+
 Page({
   data: {
     step: 1,
     steps: ["日期", "工资", "地区", "原因", "程序"],
     progress: 0,
     error: "",
-    regionNames: regionCaps.map((item) => item.city),
+    regionPickerRange: [
+      provinceNames,
+      firstProvince.cities.map((city) => city.name),
+      getCountyNames(firstCity),
+    ],
+    regionPickerValue: [0, 0, 0],
     reasonOptions: reasonOrder.map((value) => ({
       value,
       ...terminationRules[value],
     })),
     selectedRule: terminationRules.economic_layoff,
+    localStandardPrompt: "",
     form: {
       startDate: "",
       endDate: "",
@@ -53,14 +71,72 @@ Page({
   onMonthsInput(event) {
     this.setField("actualMonths", event.detail.value);
   },
-  onRegionChange(event) {
+  onRegionColumnChange(event) {
+    const column = Number(event.detail.column);
     const index = Number(event.detail.value);
-    const region = regionCaps[index];
-    if (!region) return;
+    const values = [...this.data.regionPickerValue];
+    values[column] = index;
+
+    if (column === 0) {
+      const province = regionTree[index];
+      const city = province.cities[0];
+      values[1] = 0;
+      values[2] = 0;
+      this.setData({
+        regionPickerRange: [
+          provinceNames,
+          province.cities.map((item) => item.name),
+          getCountyNames(city),
+        ],
+        regionPickerValue: values,
+      });
+      return;
+    }
+
+    if (column === 1) {
+      const province = regionTree[values[0]];
+      const city = province.cities[index];
+      values[2] = 0;
+      this.setData({
+        regionPickerRange: [
+          provinceNames,
+          province.cities.map((item) => item.name),
+          getCountyNames(city),
+        ],
+        regionPickerValue: values,
+      });
+      return;
+    }
+  },
+  onRegionChange(event) {
+    const values = event.detail.value.map(Number);
+    const province = regionTree[values[0]];
+    const city = province.cities[values[1]];
+    const county = city.counties[values[2]];
+    const countyName = county ? county.name : "暂无区县数据";
+    const regionPath = `${province.name} / ${city.name} / ${countyName}`;
     this.setData({
-      "form.regionCity": region.city,
-      "form.capMonthlyWage": String(region.capMonthlyWage),
+      regionPickerValue: values,
+      "form.regionCity": regionPath,
+      "form.capMonthlyWage": "",
+      localStandardPrompt: buildLocalStandardPrompt(regionPath),
       error: "",
+    });
+  },
+  copyLocalStandardPrompt() {
+    if (!this.data.localStandardPrompt) {
+      wx.showToast({ title: "请先选择城市", icon: "none" });
+      return;
+    }
+    wx.setClipboardData({
+      data: this.data.localStandardPrompt,
+      success: () => {
+        wx.showModal({
+          title: "提示词已复制",
+          content: "请把提示词粘贴到可用的大模型工具中查询当地官方数据。",
+          showCancel: false,
+        });
+      },
     });
   },
   onCapInput(event) {

@@ -163,6 +163,33 @@
   font-weight: 700;
 }
 
+.prompt-card {
+  margin-top: 8rpx;
+  padding: 26rpx;
+  border: 1rpx solid #bfe4de;
+  border-radius: var(--radius-control);
+  background: var(--color-primary-soft);
+}
+
+.prompt-title {
+  color: var(--color-primary-strong);
+  font-size: 27rpx;
+  font-weight: 800;
+}
+
+.prompt-copy {
+  margin-top: 10rpx;
+  color: var(--color-text-secondary);
+  font-size: 24rpx;
+  line-height: 1.65;
+}
+
+.prompt-button {
+  min-height: 88rpx;
+  margin-top: 22rpx;
+  font-size: 26rpx;
+}
+
 .error-box {
   margin-top: 24rpx;
   padding: 22rpx 24rpx;

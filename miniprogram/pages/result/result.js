@@ -6,6 +6,7 @@ const {
 } = require("../../utils/legalRules");
 const { formatCurrency, formatDate, formatNumber } = require("../../utils/format");
 const { actionChecklist, buildReportText } = require("../../utils/report");
+const { buildPdfArrayBuffer } = require("../../utils/pdf");
 
 Page({
   data: {
@@ -78,6 +79,27 @@ Page({
       data: url,
       success: () => wx.showToast({ title: "官方链接已复制", icon: "success" }),
     });
+  },
+  downloadPdf() {
+    const { input, result } = this.data;
+    if (!input || !result) return;
+
+    try {
+      const filePath = `${wx.env.USER_DATA_PATH}/离职赔偿估算报告.pdf`;
+      const reportText = buildReportText(input, result);
+      const pdfBuffer = buildPdfArrayBuffer(reportText);
+      wx.getFileSystemManager().writeFileSync(filePath, pdfBuffer);
+      wx.openDocument({
+        filePath,
+        fileType: "pdf",
+        showMenu: true,
+        fail: () => {
+          wx.showToast({ title: "PDF 打开失败，请重试", icon: "none" });
+        },
+      });
+    } catch (error) {
+      wx.showToast({ title: "PDF 生成失败，请重试", icon: "none" });
+    }
   },
   restart() {
     getApp().globalData.calculation = null;

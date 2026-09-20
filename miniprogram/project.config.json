@@ -1,7 +1,8 @@
 {
   "description": "离职赔偿计算器微信小程序",
   "packOptions": {
-    "ignore": []
+    "ignore": [],
+    "include": []
   },
   "setting": {
     "urlCheck": false,
@@ -10,12 +11,29 @@
     "postcss": true,
     "minified": true,
     "compileHotReLoad": true,
-    "useCompilerPlugins": []
+    "useCompilerPlugins": [],
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
   "compileType": "miniprogram",
   "libVersion": "trial",
-  "appid": "touristappid",
+  "appid": "wxb111109b121a6e53",
   "projectname": "severance-calculator-miniprogram",
   "miniprogramRoot": "./",
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
 }

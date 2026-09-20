@@ -126,6 +126,13 @@
     <button
       class="primary-button"
       hover-class="primary-button-pressed"
+      bindtap="downloadPdf"
+    >
+      下载 PDF 报告
+    </button>
+    <button
+      class="secondary-button"
+      hover-class="secondary-button-pressed"
       bindtap="copyReport"
     >
       复制文本摘要
