@@ -1,0 +1,15 @@
+{
+  "pages": ["pages/index/index", "pages/wizard/wizard", "pages/result/result"],
+  "window": {
+    "navigationBarTitleText": "离职赔偿计算器",
+    "navigationBarBackgroundColor": "#fffaf8",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#fffaf8",
+    "backgroundTextStyle": "dark"
+  },
+  "usingComponents": {
+    "disclaimer-bar": "/components/disclaimer-bar/disclaimer-bar"
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

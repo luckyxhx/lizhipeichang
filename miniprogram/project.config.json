@@ -1,0 +1,21 @@
+{
+  "description": "离职赔偿计算器微信小程序",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "compileHotReLoad": true,
+    "useCompilerPlugins": []
+  },
+  "compileType": "miniprogram",
+  "libVersion": "trial",
+  "appid": "touristappid",
+  "projectname": "severance-calculator-miniprogram",
+  "miniprogramRoot": "./",
+  "condition": {}
+}

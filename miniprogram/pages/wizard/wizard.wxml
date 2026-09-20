@@ -1,0 +1,154 @@
+<view class="page">
+  <view class="progress-head">
+    <view>
+      <text class="progress-step">第 {{step}} 步 / 共 5 步</text>
+      <text class="progress-label">{{steps[step - 1]}}</text>
+    </view>
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{progress}}%;"></view>
+    </view>
+  </view>
+
+  <view class="surface form-card">
+    <block wx:if="{{step === 1}}">
+      <view class="section-title">填写在职日期</view>
+      <view class="field">
+        <text class="field-label">入职日期<text class="field-required">*</text></text>
+        <picker mode="date" value="{{form.startDate}}" bindchange="onStartDateChange">
+          <view class="picker-box {{form.startDate ? '' : 'picker-placeholder'}}">
+            {{form.startDate || '请选择入职日期'}}
+          </view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="field-label">离职日期<text class="field-required">*</text></text>
+        <picker mode="date" value="{{form.endDate}}" bindchange="onEndDateChange">
+          <view class="picker-box {{form.endDate ? '' : 'picker-placeholder'}}">
+            {{form.endDate || '请选择离职日期'}}
+          </view>
+        </picker>
+        <text class="field-hint">离职日期需晚于入职日期。</text>
+      </view>
+    </block>
+
+    <block wx:if="{{step === 2}}">
+      <view class="section-title">填写工资信息</view>
+      <view class="field">
+        <text class="field-label">离职前 12 个月总收入<text class="field-required">*</text></text>
+        <input
+          class="input"
+          type="digit"
+          value="{{form.totalIncomeLast12Months}}"
+          placeholder="例如 180000"
+          bindinput="onIncomeInput"
+        />
+        <text class="field-hint">填写工资、奖金、津贴、补贴等货币性收入合计，单位：元。</text>
+      </view>
+      <view class="field">
+        <text class="field-label">实际月份数<text class="field-required">*</text></text>
+        <input
+          class="input"
+          type="digit"
+          value="{{form.actualMonths}}"
+          placeholder="例如 8"
+          bindinput="onMonthsInput"
+        />
+        <text class="field-hint">不满 12 个月时填写实际月份，按实际月份平均。</text>
+      </view>
+    </block>
+
+    <block wx:if="{{step === 3}}">
+      <view class="section-title">选择劳动合同履行地</view>
+      <view class="field">
+        <text class="field-label">城市<text class="field-required">*</text></text>
+        <picker mode="selector" range="{{regionNames}}" bindchange="onRegionChange">
+          <view class="picker-box {{form.regionCity ? '' : 'picker-placeholder'}}">
+            {{form.regionCity || '请选择城市'}}
+          </view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="field-label">当地上年度职工月平均工资的 3 倍<text class="field-required">*</text></text>
+        <input
+          class="input"
+          type="digit"
+          value="{{form.capMonthlyWage}}"
+          placeholder="请输入三倍封顶线"
+          bindinput="onCapInput"
+        />
+        <text class="field-hint">城市数据为示例值，正式使用前请手动替换为官方最新数据。</text>
+      </view>
+    </block>
+
+    <block wx:if="{{step === 4}}">
+      <view class="section-title">选择离职原因</view>
+      <radio-group class="reason-list" bindchange="onReasonChange">
+        <label
+          wx:for="{{reasonOptions}}"
+          wx:key="value"
+          class="reason-item {{form.terminationReason === item.value ? 'reason-item-active' : ''}}"
+        >
+          <radio
+            value="{{item.value}}"
+            checked="{{form.terminationReason === item.value}}"
+            color="#cf315f"
+          />
+          <view class="reason-content">
+            <text class="reason-label">{{item.label}}</text>
+            <text class="reason-tag">{{item.shortLabel}}</text>
+          </view>
+        </label>
+      </radio-group>
+    </block>
+
+    <block wx:if="{{step === 5}}">
+      <view class="section-title">补充解除程序</view>
+      <view class="field">
+        <text class="field-label">公司是否提前 30 日书面通知？<text class="field-required">*</text></text>
+        <radio-group class="choice-row" bindchange="onNoticeChange">
+          <label class="choice {{form.writtenNoticeProvided ? 'choice-active' : ''}}">
+            <radio value="yes" checked="{{form.writtenNoticeProvided}}" color="#cf315f" />是
+          </label>
+          <label class="choice {{!form.writtenNoticeProvided ? 'choice-active' : ''}}">
+            <radio value="no" checked="{{!form.writtenNoticeProvided}}" color="#cf315f" />否
+          </label>
+        </radio-group>
+      </view>
+
+      <view wx:if="{{selectedRule.isArticle40 && !form.writtenNoticeProvided}}" class="field">
+        <text class="field-label">上个月应发工资<text class="field-required">*</text></text>
+        <input
+          class="input"
+          type="digit"
+          value="{{form.lastMonthSalary}}"
+          placeholder="例如 12000"
+          bindinput="onLastMonthSalaryInput"
+        />
+        <text class="field-hint">用于计算 +1 代通知金，不是 12 个月平均工资。</text>
+      </view>
+
+      <view class="field">
+        <text class="field-label">是否签订书面劳动合同？<text class="field-required">*</text></text>
+        <radio-group class="choice-row" bindchange="onContractChange">
+          <label class="choice {{form.hasWrittenContract ? 'choice-active' : ''}}">
+            <radio value="yes" checked="{{form.hasWrittenContract}}" color="#cf315f" />是
+          </label>
+          <label class="choice {{!form.hasWrittenContract ? 'choice-active' : ''}}">
+            <radio value="no" checked="{{!form.hasWrittenContract}}" color="#cf315f" />否
+          </label>
+        </radio-group>
+      </view>
+    </block>
+
+    <view wx:if="{{error}}" class="error-box">{{error}}</view>
+
+    <view class="actions">
+      <button class="secondary-button action-back" bindtap="previous">上一步</button>
+      <button class="primary-button action-next" bindtap="next">
+        {{step === 5 ? '生成估算报告' : '下一步'}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<disclaimer-bar />

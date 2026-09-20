@@ -1,0 +1,107 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 48rpx 38rpx;
+}
+
+.hero-accent {
+  position: absolute;
+  top: -72rpx;
+  right: -72rpx;
+  width: 210rpx;
+  height: 210rpx;
+  border-radius: 50%;
+  background: #fff1f5;
+}
+
+.hero-eyebrow,
+.hero-title,
+.hero-copy,
+.hero-button,
+.price-note {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  color: #cf315f;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.hero-title {
+  margin-top: 18rpx;
+  color: #111827;
+  font-size: 58rpx;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.hero-copy {
+  margin-top: 24rpx;
+  color: #5f6673;
+  font-size: 29rpx;
+  line-height: 1.7;
+}
+
+.hero-button {
+  margin-top: 42rpx;
+}
+
+.price-note {
+  margin-top: 18rpx;
+  color: #8b929e;
+  font-size: 23rpx;
+  text-align: center;
+}
+
+.feature-list {
+  margin-top: 28rpx;
+  padding: 10rpx 30rpx;
+}
+
+.feature-item {
+  display: flex;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f0ecec;
+}
+
+.feature-item:last-child {
+  border-bottom: none;
+}
+
+.feature-mark {
+  width: 36rpx;
+  height: 8rpx;
+  margin-top: 14rpx;
+  margin-right: 20rpx;
+  border-radius: 99rpx;
+  background: #cf315f;
+}
+
+.feature-content {
+  flex: 1;
+}
+
+.feature-title {
+  color: #111827;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.feature-copy {
+  margin-top: 10rpx;
+  color: #6b7280;
+  font-size: 25rpx;
+  line-height: 1.6;
+}
+
+.notice {
+  margin-top: 28rpx;
+  padding: 26rpx 28rpx;
+  border-left: 8rpx solid #f0b429;
+  color: #8a5a00;
+  background: #fff8e6;
+  font-size: 25rpx;
+  line-height: 1.7;
+}

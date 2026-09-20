@@ -1,0 +1,122 @@
+<view wx:if="{{ready}}" class="page">
+  <view class="amount-card">
+    <text class="amount-kicker">初步适用 {{result.rule}}</text>
+    <text class="amount-label">预估赔偿总额区间</text>
+    <text class="amount-value">{{view.range}}</text>
+    <text class="amount-note">
+      基准金额 {{view.exactAmount}}；展示区间按基准金额上下浮动 20%，不是法定最低或最高金额。
+    </text>
+    <view class="amount-conclusion">{{result.legalConclusion}}</view>
+  </view>
+
+  <view class="surface conclusion-card">
+    <text class="card-kicker">适用结论</text>
+    <view class="rule-title">{{result.rule}}</view>
+    <view class="card-copy">{{result.ruleReason}}</view>
+  </view>
+
+  <view class="surface section-card">
+    <view class="section-heading">计算过程拆解</view>
+    <view class="detail-row">
+      <text class="detail-label">入职日期</text>
+      <text class="detail-value">{{view.startDate}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">离职日期</text>
+      <text class="detail-value">{{view.endDate}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">工作年限</text>
+      <text class="detail-value">{{result.service.summary}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">计入 N 月数</text>
+      <text class="detail-value">{{view.nUnits}} 个月</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">月平均工资</text>
+      <text class="detail-value">{{view.monthlyAverageWage}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">计算用月工资</text>
+      <text class="detail-value">{{view.calculatedMonthlyWage}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">三倍封顶线</text>
+      <text class="detail-value">{{view.capMonthlyWage}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">N 金额</text>
+      <text class="detail-value">{{view.nAmount}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">+1 金额</text>
+      <text class="detail-value">{{view.plusOneAmount}}</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">2N 金额</text>
+      <text class="detail-value">{{view.doubleNBaseAmount}}</text>
+    </view>
+  </view>
+
+  <view class="surface section-card">
+    <view class="section-heading">法律依据</view>
+    <view class="section-subtitle">
+      条款摘要来自全国人大法规库，不替代法条原文。点击官方来源可复制链接。
+    </view>
+    <view
+      wx:for="{{view.officialLegalSources}}"
+      wx:key="key"
+      class="source-item"
+      data-url="{{item.officialUrl}}"
+      bindtap="copySource"
+    >
+      <text class="source-title">{{item.title}}</text>
+      <text class="source-note">{{item.versionNote}} · 点击复制官方链接</text>
+    </view>
+    <view
+      wx:for="{{view.articles}}"
+      wx:key="id"
+      class="legal-item"
+    >
+      <text class="legal-title">《劳动合同法》第 {{item.id}} 条 · {{item.title}}</text>
+      <text class="legal-copy">{{item.summary}}</text>
+    </view>
+    <view
+      wx:for="{{view.supportingArticles}}"
+      wx:key="id"
+      class="legal-item"
+    >
+      <text class="legal-title">{{item.sourceName}}{{item.articleNumber}} · {{item.title}}</text>
+      <text class="legal-copy">{{item.summary}}</text>
+    </view>
+  </view>
+
+  <view class="risk-card">
+    <view class="section-heading">风险提示</view>
+    <view wx:for="{{result.warnings}}" wx:key="*this" class="risk-item">
+      <view class="risk-dot"></view>
+      <text>{{item}}</text>
+    </view>
+  </view>
+
+  <view class="surface section-card">
+    <view class="section-heading">维权行动清单</view>
+    <label wx:for="{{checklist}}" wx:key="*this" class="check-item">
+      <checkbox color="#cf315f" />
+      <text>{{item}}</text>
+    </label>
+  </view>
+
+  <view class="disclaimer-card">
+    本工具仅提供第一轮估算，不构成正式法律意见，不能替代律师、劳动仲裁机构或人民法院的判断。
+  </view>
+
+  <view class="result-actions">
+    <button class="primary-button" bindtap="copyReport">复制文本摘要</button>
+    <button class="secondary-button" open-type="share">分享给好友</button>
+    <button class="restart-button" bindtap="restart">重新计算</button>
+  </view>
+</view>
+
+<disclaimer-bar />

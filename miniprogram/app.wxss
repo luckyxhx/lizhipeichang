@@ -1,0 +1,124 @@
+page {
+  min-height: 100%;
+  color: #1f2937;
+  background: #fffaf8;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+button {
+  font-size: 30rpx;
+}
+
+button::after {
+  border: none;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 32rpx 28rpx 156rpx;
+  box-sizing: border-box;
+}
+
+.surface {
+  border: 1rpx solid #e7e5e4;
+  border-radius: 16rpx;
+  background: #ffffff;
+  box-shadow: 0 16rpx 38rpx rgba(75, 49, 58, 0.08);
+}
+
+.primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96rpx;
+  border-radius: 16rpx;
+  color: #ffffff;
+  background: #cf315f;
+  font-weight: 700;
+}
+
+.primary-button[disabled] {
+  color: #ffffff;
+  background: #f0b7c8;
+}
+
+.secondary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 92rpx;
+  border: 1rpx solid #f2c8d5;
+  border-radius: 16rpx;
+  color: #ad234c;
+  background: #ffffff;
+  font-weight: 700;
+}
+
+.field {
+  margin-bottom: 38rpx;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #374151;
+  font-size: 29rpx;
+  font-weight: 700;
+}
+
+.field-required {
+  margin-left: 4rpx;
+  color: #cf315f;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 10rpx;
+  color: #7c8491;
+  font-size: 23rpx;
+  line-height: 1.55;
+}
+
+.field-error {
+  display: block;
+  margin-top: 10rpx;
+  color: #dc2626;
+  font-size: 24rpx;
+}
+
+.input,
+.picker-box {
+  display: flex;
+  align-items: center;
+  min-height: 92rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid #d6d3d1;
+  border-radius: 16rpx;
+  box-sizing: border-box;
+  color: #111827;
+  background: #ffffff;
+  font-size: 30rpx;
+}
+
+.picker-placeholder,
+.input-placeholder {
+  color: #9ca3af;
+}
+
+.section-title {
+  margin: 0;
+  color: #111827;
+  font-size: 36rpx;
+  font-weight: 800;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+.divider {
+  height: 1rpx;
+  margin: 28rpx 0;
+  background: #eee7e8;
+}

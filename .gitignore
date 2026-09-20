@@ -7,3 +7,6 @@ coverage
 .DS_Store
 
 .vercel
+miniprogram/project.private.config.json
+miniprogram/node_modules
+miniprogram/miniprogram_npm

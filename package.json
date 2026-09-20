@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "wechat:test": "node --test miniprogram/tests/calc.test.cjs",
     "test:watch": "vitest",
     "preview": "vite preview"
   },

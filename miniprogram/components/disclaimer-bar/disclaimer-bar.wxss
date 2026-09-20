@@ -1,0 +1,81 @@
+.bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 82rpx;
+  border-top: 1rpx solid #e5e7eb;
+  color: #5f6673;
+  background: rgba(255, 255, 255, 0.96);
+  font-size: 26rpx;
+}
+
+.bar-mark {
+  width: 10rpx;
+  height: 10rpx;
+  margin-right: 12rpx;
+  border-radius: 50%;
+  background: #cf315f;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(17, 24, 39, 0.38);
+}
+
+.sheet {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-height: 82vh;
+  padding: 34rpx 30rpx 48rpx;
+  border-radius: 24rpx 24rpx 0 0;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  color: #cf315f;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.sheet-title {
+  margin-top: 8rpx;
+  color: #111827;
+  font-size: 40rpx;
+  font-weight: 800;
+}
+
+.close {
+  min-height: 62rpx;
+  margin: 0;
+  padding: 0 22rpx;
+  border-radius: 12rpx;
+  color: #4b5563;
+  background: #f3f4f6;
+  font-size: 25rpx;
+  line-height: 62rpx;
+}
+
+.sheet-body {
+  max-height: 54vh;
+  margin-top: 28rpx;
+  color: #5f6673;
+  font-size: 27rpx;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}

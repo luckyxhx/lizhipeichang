@@ -1,0 +1,19 @@
+<view class="bar" bindtap="openDisclaimer">
+  <view class="bar-mark"></view>
+  <text>查看免责声明</text>
+</view>
+
+<view wx:if="{{open}}" class="overlay" bindtap="closeDisclaimer">
+  <view class="sheet" catchtap="stopPropagation">
+    <view class="sheet-head">
+      <view>
+        <text class="eyebrow">重要说明</text>
+        <view class="sheet-title">免责声明</view>
+      </view>
+      <button class="close" bindtap="closeDisclaimer">关闭</button>
+    </view>
+    <scroll-view scroll-y class="sheet-body">
+      <text>{{disclaimer}}</text>
+    </scroll-view>
+  </view>
+</view>

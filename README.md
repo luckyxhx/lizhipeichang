@@ -33,11 +33,51 @@ http://localhost:5173/?token=abc123
 
 ```bash
 npm test
+npm run wechat:test
 npm run lint
 npm run format:check
 npm run build
 npm run preview
 ```
+
+## 微信小程序版本
+
+仓库内包含原生微信小程序版本，目录为：
+
+```text
+miniprogram/
+```
+
+目录结构：
+
+- `pages/index/`：产品首页
+- `pages/wizard/`：五步问答表单
+- `pages/result/`：估算报告、法条摘要、风险提示和行动清单
+- `utils/calc.js`：无第三方依赖的小程序计算引擎
+- `utils/legalRules.js`：法律来源、条款摘要和适用规则
+- `config/product.js`：产品名、价格提示、客服方式和免责声明
+- `data/regions.js`：地区封顶线示例数据
+
+运行小程序端核心测试：
+
+```bash
+npm run wechat:test
+```
+
+使用微信开发者工具导入：
+
+1. 打开微信开发者工具。
+2. 选择“导入项目”。
+3. 项目目录选择 `D:\gongchang\lizhipeichang\miniprogram`。
+4. 测试阶段可以继续使用 `project.config.json` 中的 `touristappid`。
+5. 正式发布时，将 `appid` 替换为你的微信小程序 AppID。
+
+小程序端与 H5 的差异：
+
+- 小程序本地计算，不依赖 Vercel 域名。
+- 不提供网页式打印 PDF，支持复制报告摘要和微信转发。
+- 法律官方链接以“点击复制链接”方式提供；如需直接打开，需要在小程序后台配置业务域名。
+- 正式提交审核前，需在微信公众平台补齐服务类目、隐私保护指引和小程序备案等要求。
 
 ## 访问控制
 
