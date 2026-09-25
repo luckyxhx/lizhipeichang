@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { AppShell } from "@/components/AppShell";
-import { getTokenFromSearch, isTokenAllowed } from "@/lib/access";
+import { resolveAccess } from "@/lib/access";
 import { Home } from "@/pages/Home";
 import { Result } from "@/pages/Result";
 import { Unauthorized } from "@/pages/Unauthorized";
@@ -14,14 +14,20 @@ export const App = (): JSX.Element => {
     input: CalculationInput;
     result: CalculationResult;
   } | null>(null);
-  const token = useMemo(() => getTokenFromSearch(window.location.search), []);
-  const allowedTokens = import.meta.env.VITE_ALLOWED_TOKENS;
-  const authorized = isTokenAllowed(token, allowedTokens);
+  const access = useMemo(
+    () =>
+      resolveAccess(
+        window.location.search,
+        import.meta.env.VITE_ALLOWED_TOKENS,
+        import.meta.env.VITE_PAID_TOKENS,
+      ),
+    [],
+  );
 
-  if (!authorized) {
+  if (!access.authorized) {
     return (
       <AppShell>
-        <Unauthorized tokenConfigured={Boolean(allowedTokens?.trim())} />
+        <Unauthorized tokenConfigured={access.tokenConfigured} />
       </AppShell>
     );
   }
@@ -32,6 +38,7 @@ export const App = (): JSX.Element => {
         <Result
           input={calculation.input}
           result={calculation.result}
+          edition={access.edition}
           onEdit={() => setScreen("wizard")}
           onRestart={() => {
             setCalculation(null);
@@ -45,9 +52,10 @@ export const App = (): JSX.Element => {
   return (
     <AppShell>
       {screen === "home" ? (
-        <Home onStart={() => setScreen("wizard")} />
+        <Home edition={access.edition} onStart={() => setScreen("wizard")} />
       ) : (
         <Wizard
+          edition={access.edition}
           initialValues={calculation?.input}
           onBackHome={() => setScreen("home")}
           onComplete={(input, result) => {

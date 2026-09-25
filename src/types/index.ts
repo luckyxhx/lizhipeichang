@@ -16,6 +16,8 @@ export type TerminationReason = (typeof terminationReasons)[number];
 
 export type CompensationRule = "N" | "N+1" | "2N" | "0";
 
+export type ProductEdition = "free" | "paid";
+
 export interface WizardFormValues {
   startDate: string;
   endDate: string;

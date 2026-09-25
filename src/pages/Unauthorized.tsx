@@ -22,6 +22,23 @@ export const Unauthorized = ({ tokenConfigured }: UnauthorizedProps): JSX.Elemen
         如果链接已经过期或打开时丢失了参数，请重新复制客服发送的完整链接。
       </p>
 
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-lg border border-brand-200 bg-brand-50 p-4">
+          <p className="font-bold text-brand-900">{product.editions.free.name}</p>
+          <p className="mt-1 text-xs leading-5 text-brand-800">
+            {product.editions.free.summary}
+          </p>
+        </div>
+        <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+          <p className="font-bold text-orange-950">
+            {product.editions.paid.name} · {product.editions.paid.priceNote}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-orange-900">
+            {product.editions.paid.summary}
+          </p>
+        </div>
+      </div>
+
       {!tokenConfigured ? (
         <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
           当前部署环境尚未配置 <code>VITE_ALLOWED_TOKENS</code>

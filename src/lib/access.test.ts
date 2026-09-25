@@ -5,6 +5,7 @@ import {
   getTokenFromSearch,
   isTokenAllowed,
   parseAllowedTokens,
+  resolveAccess,
 } from "@/lib/access";
 
 describe("access", () => {
@@ -31,5 +32,28 @@ describe("access", () => {
     expect(buildAccessUrl("https://example.com", "/", "abc123")).toBe(
       "https://example.com/?token=abc123",
     );
+  });
+
+  it("按 token 列表区分免费版和完整版", () => {
+    expect(resolveAccess("?token=free123", "free123", "paid123")).toMatchObject({
+      authorized: true,
+      edition: "free",
+    });
+    expect(resolveAccess("?token=paid123", "free123", "paid123")).toMatchObject({
+      authorized: true,
+      edition: "paid",
+    });
+  });
+
+  it("完整版 token 优先于免费版 token", () => {
+    expect(resolveAccess("?token=paid123", "paid123", "paid123").edition).toBe("paid");
+  });
+
+  it("无效 token 不授权", () => {
+    expect(resolveAccess("?token=unknown", "free123", "paid123")).toMatchObject({
+      authorized: false,
+      edition: "free",
+      tokenConfigured: true,
+    });
   });
 });

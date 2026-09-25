@@ -2,8 +2,13 @@ import { format } from "date-fns";
 import { Scale } from "lucide-react";
 
 import { product } from "@/config/product";
+import type { ProductEdition } from "@/types";
 
-export const ReportHeader = (): JSX.Element => (
+interface ReportHeaderProps {
+  edition: ProductEdition;
+}
+
+export const ReportHeader = ({ edition }: ReportHeaderProps): JSX.Element => (
   <header className="border-b-2 border-slate-900 pb-5">
     <div className="flex items-start justify-between gap-5">
       <div>
@@ -12,7 +17,7 @@ export const ReportHeader = (): JSX.Element => (
           <span className="text-sm font-bold">离职权益第一轮估算</span>
         </div>
         <h1 className="mt-3 text-2xl font-black text-slate-950 sm:text-3xl">
-          {product.name}报告
+          {edition === "paid" ? `${product.name}报告` : `${product.name}简版测算卡`}
         </h1>
         <p className="mt-2 text-sm text-slate-500">
           生成日期：{format(new Date(), "yyyy 年 M 月 d 日")}

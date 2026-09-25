@@ -13,11 +13,13 @@ import { wizardSchema } from "@/lib/wizardSchema";
 import type {
   CalculationInput,
   CalculationResult,
+  ProductEdition,
   WizardFormValues,
   WizardStep,
 } from "@/types";
 
 interface WizardProps {
+  edition: ProductEdition;
   initialValues?: CalculationInput;
   onBackHome: () => void;
   onComplete: (input: CalculationInput, result: CalculationResult) => void;
@@ -32,6 +34,7 @@ const stepFields: Record<WizardStep, FieldPath<WizardFormValues>[]> = {
 };
 
 export const Wizard = ({
+  edition,
   initialValues,
   onBackHome,
   onComplete,
@@ -67,14 +70,14 @@ export const Wizard = ({
 
   useEffect(() => {
     const region = getRegionCap(selectedCity);
-    if (region && selectedCity !== previousCity.current) {
+    if (edition === "paid" && region && selectedCity !== previousCity.current) {
       setValue("capMonthlyWage", region.capMonthlyWage, {
         shouldDirty: true,
         shouldValidate: true,
       });
     }
     previousCity.current = selectedCity;
-  }, [selectedCity, setValue]);
+  }, [edition, selectedCity, setValue]);
 
   const goNext = async (): Promise<void> => {
     const valid = await trigger(stepFields[currentStep], {
@@ -121,9 +124,17 @@ export const Wizard = ({
       </button>
 
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-soft sm:p-7">
+        <div className="mb-5 flex items-center justify-between rounded-lg bg-slate-50 px-4 py-3 text-sm">
+          <span className="font-semibold text-slate-700">
+            {edition === "paid" ? "完整版" : "免费版"}
+          </span>
+          <span className="text-xs text-slate-500">
+            {edition === "paid" ? "包含完整报告与付费材料" : "仅提供核心测算结果"}
+          </span>
+        </div>
         <StepIndicator currentStep={currentStep} />
         <form className="mt-7" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <StepForm form={form} currentStep={currentStep} />
+          <StepForm edition={edition} form={form} currentStep={currentStep} />
           {currentStep === 5 ? (
             <div className="mt-7">
               <StepResult isSubmitting={isSubmitting} />

@@ -1,6 +1,6 @@
 # 离职赔偿计算系统
 
-移动端优先的纯前端 H5 工具。用户通过五步问答录入日期、工资、地区和解除情形，系统在浏览器本地生成“离职赔偿估算报告”，支持打印或保存为 PDF。
+移动端优先的纯前端 H5 工具。用户通过五步问答录入日期、工资、地区和解除情形，系统在浏览器本地生成测算结果。H5 分为免费版和 9.9 元完整版，两版共用同一套计算规则。
 
 ## 技术栈
 
@@ -92,13 +92,16 @@ npm run wechat:test
 在 `.env.local` 或部署平台的环境变量中配置：
 
 ```env
-VITE_ALLOWED_TOKENS=abc123,def456
+VITE_ALLOWED_TOKENS=free123,free456
+VITE_PAID_TOKENS=paid123,paid456
 ```
 
 规则：
 
 - 多个 token 用英文逗号分隔。
 - 访问链接必须带 `?token=...`。
+- `VITE_ALLOWED_TOKENS` 中的 token 进入免费版。
+- `VITE_PAID_TOKENS` 中的 token 进入完整版；完整版 token 优先于免费版 token。
 - token 不匹配、缺失或环境变量为空时，显示购买提示页。
 - 修改 token 后需要重新构建和部署，才能让新列表生效。
 
@@ -110,11 +113,35 @@ VITE_ALLOWED_TOKENS=abc123,def456
 ).Replace("-", "").ToLower()
 ```
 
-生成后拼接链接：
+生成后分别拼接链接：
 
 ```text
-https://你的域名/?token=生成的token
+https://你的域名/?token=免费版token
+https://你的域名/?token=完整版token
 ```
+
+## H5 两个版本
+
+### 免费版
+
+- 完成日期、工资、地区和解除情形输入。
+- 计算 N、N+1、2N 或 0 的估算金额。
+- 展示核心计算项和结论说明。
+- 支持打印或保存“简版测算卡”。
+- 不自动匹配社平工资，城市封顶线由用户手动填写。
+
+免费版通过 `VITE_ALLOWED_TOKENS` 中的专属 token 访问，可配合公众号关注后自动回复链接。
+
+### 完整版（9.9 元）
+
+- 包含免费版的全部计算能力。
+- 生成《赔偿测算报告》完整 PDF，可打印保存。
+- 全国省、地市城市选择；对已维护城市自动匹配三倍封顶线。
+- 未收录城市不会使用邻近城市估价，而是提示查询官方来源。
+- 附带《离职谈判话术卡》和《仲裁举证清单》。
+- 通过 `VITE_PAID_TOKENS` 中的专属 token 访问。
+
+当前自动匹配数据只包含 `src/data/regions.ts` 中的人工维护条目。北京、上海、广州、深圳、杭州、成都、武汉、南京、西安、郑州当前仍是示例值，不能作为正式法律或财务依据。要实现全国城市准确匹配，必须继续录入当地官方来源、适用年度和三倍封顶线。
 
 ### 安全边界
 
@@ -136,15 +163,15 @@ https://你的域名/?token=生成的token
 3. Framework Preset 选择 `Vite`。
 4. Build Command 使用 `npm run build`。
 5. Output Directory 使用 `dist`。
-6. 在 Project Settings 的 Environment Variables 中添加 `VITE_ALLOWED_TOKENS`。
-7. 部署后打开 `https://部署域名/?token=你的token` 验证。
+6. 在 Project Settings 的 Environment Variables 中添加 `VITE_ALLOWED_TOKENS` 和 `VITE_PAID_TOKENS`。
+7. 部署后分别验证免费版和完整版 token。
 
 ### Cloudflare Pages
 
 1. 在 Cloudflare Pages 中连接代码仓库。
 2. Build command 使用 `npm run build`。
 3. Build output directory 使用 `dist`。
-4. 在环境变量中添加 `VITE_ALLOWED_TOKENS`。
+4. 在环境变量中添加 `VITE_ALLOWED_TOKENS` 和 `VITE_PAID_TOKENS`。
 5. 重新部署后验证带 token 和不带 token 两种访问情况。
 
 项目没有前端路由和重写规则，因此不需要额外的 `_redirects` 或 SPA fallback 配置。
@@ -162,9 +189,11 @@ https://你的域名/?token=生成的token
 
 ## 新增或更新城市
 
-### H5 示例封顶线
+### H5 城市与封顶线
 
-编辑 `src/data/regions.ts`，按现有结构增加示例城市：
+`src/data/regionOptions.json` 包含全国省和地市选择列表，由现有行政区数据生成。免费版允许选择城市但要求手动填写；完整版会从 `src/data/regions.ts` 查找已维护的封顶线。
+
+编辑 `src/data/regions.ts`，按现有结构增加或更新城市标准：
 
 ```ts
 {
@@ -176,7 +205,7 @@ https://你的域名/?token=生成的token
 }
 ```
 
-`capMonthlyWage` 表示“当地上年度职工月平均工资的 3 倍”。用户选择城市后会自动带出该示例值，也可以手动覆盖。
+`capMonthlyWage` 表示“当地上年度职工月平均工资的 3 倍”。完整版用户选择已收录城市后会自动带出该值，也可以手动覆盖；免费版只提供手动输入。
 
 当前内置的北京、上海、广州、深圳、杭州、成都、武汉、南京、西安、郑州金额均为产品演示占位值，年份和来源没有核实，不能直接用于正式交付。上线前必须逐项替换为官方最新数据。
 

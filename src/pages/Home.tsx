@@ -1,8 +1,20 @@
-import { ArrowRight, Calculator, LockKeyhole, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Calculator,
+  Check,
+  Gift,
+  LockKeyhole,
+  ShieldCheck,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
+import { product } from "@/config/product";
+import { cn } from "@/lib/cn";
+import type { ProductEdition } from "@/types";
 
 interface HomeProps {
+  edition: ProductEdition;
   onStart: () => void;
 }
 
@@ -24,7 +36,7 @@ const highlights = [
   },
 ] as const;
 
-export const Home = ({ onStart }: HomeProps): JSX.Element => (
+export const Home = ({ edition, onStart }: HomeProps): JSX.Element => (
   <div className="mx-auto max-w-3xl">
     <section className="relative overflow-hidden rounded-xl bg-white px-5 py-8 shadow-soft sm:px-8 sm:py-10">
       <div className="absolute -right-14 -top-14 size-36 rounded-full bg-brand-50" />
@@ -37,10 +49,78 @@ export const Home = ({ onStart }: HomeProps): JSX.Element => (
           根据离职时间、工资基数和解除情形，生成包含金额区间、计算拆解、法条索引和行动清单的报告。
         </p>
         <Button className="mt-7 w-full sm:w-auto" onClick={onStart}>
-          开始估算
+          {edition === "paid" ? "打开完整版" : "开始免费测算"}
           <ArrowRight className="size-5" aria-hidden="true" />
         </Button>
       </div>
+    </section>
+
+    <section className="mt-6 grid gap-4 sm:grid-cols-2">
+      <article
+        className={cn(
+          "rounded-xl border bg-white p-5 shadow-soft",
+          edition === "free" ? "border-brand-500" : "border-slate-200",
+        )}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <span className="grid size-10 place-items-center rounded-lg bg-brand-50 text-brand-700">
+            <Gift className="size-5" aria-hidden="true" />
+          </span>
+          <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-700">
+            {edition === "free" ? "当前版本" : product.editions.free.priceNote}
+          </span>
+        </div>
+        <h2 className="mt-4 text-lg font-black text-slate-950">
+          {product.editions.free.name}
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {product.editions.free.summary}
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-slate-700">
+          {product.editions.free.features.map((feature) => (
+            <li key={feature} className="flex gap-2">
+              <Check
+                className="mt-0.5 size-4 shrink-0 text-brand-600"
+                aria-hidden="true"
+              />
+              {feature}
+            </li>
+          ))}
+        </ul>
+      </article>
+
+      <article
+        className={cn(
+          "rounded-xl border bg-white p-5 shadow-soft",
+          edition === "paid" ? "border-brand-500" : "border-slate-200",
+        )}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <span className="grid size-10 place-items-center rounded-lg bg-orange-50 text-orange-700">
+            <BadgeCheck className="size-5" aria-hidden="true" />
+          </span>
+          <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
+            {edition === "paid" ? "已解锁" : product.editions.paid.priceNote}
+          </span>
+        </div>
+        <h2 className="mt-4 text-lg font-black text-slate-950">
+          {product.editions.paid.name}
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {product.editions.paid.summary}
+        </p>
+        <ul className="mt-4 space-y-2 text-sm text-slate-700">
+          {product.editions.paid.features.map((feature) => (
+            <li key={feature} className="flex gap-2">
+              <Check
+                className="mt-0.5 size-4 shrink-0 text-orange-600"
+                aria-hidden="true"
+              />
+              {feature}
+            </li>
+          ))}
+        </ul>
+      </article>
     </section>
 
     <section className="mt-6 grid gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-3">
@@ -55,7 +135,8 @@ export const Home = ({ onStart }: HomeProps): JSX.Element => (
 
     <section className="mt-6 border-l-4 border-amber-400 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-950">
       <strong className="font-bold">先说明：</strong>
-      结果仅用于第一轮估算，不构成正式法律意见。地区数据显示为待复核示例，正式使用前必须更新并核对来源。
+      结果仅用于第一轮估算，不构成正式法律意见。完整版中的城市标准只匹配已维护数据，
+      未收录地区仍须按官方来源核对。
     </section>
   </div>
 );

@@ -4,11 +4,18 @@ import { Search } from "lucide-react";
 import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { regionCaps } from "@/data/regions";
+import { regionOptions } from "@/data/regionOptions";
 import { getTerminationRule } from "@/lib/legalRules";
 import { cn } from "@/lib/cn";
-import type { TerminationReason, WizardFormValues, WizardStep } from "@/types";
+import type {
+  ProductEdition,
+  TerminationReason,
+  WizardFormValues,
+  WizardStep,
+} from "@/types";
 
 interface StepFormProps {
+  edition: ProductEdition;
   form: UseFormReturn<WizardFormValues>;
   currentStep: WizardStep;
 }
@@ -35,7 +42,7 @@ const reasonOrder: TerminationReason[] = [
   "serious_misconduct",
 ];
 
-export const StepForm = ({ form, currentStep }: StepFormProps): JSX.Element => {
+export const StepForm = ({ edition, form, currentStep }: StepFormProps): JSX.Element => {
   const {
     register,
     watch,
@@ -45,7 +52,8 @@ export const StepForm = ({ form, currentStep }: StepFormProps): JSX.Element => {
   const selectedReason = watch("terminationReason");
   const selectedRule = selectedReason ? getTerminationRule(selectedReason) : undefined;
   const writtenNoticeProvided = watch("writtenNoticeProvided");
-  const selectedRegion = regionCaps.find((region) => region.city === watch("regionCity"));
+  const selectedCity = watch("regionCity");
+  const selectedRegion = regionCaps.find((region) => region.city === selectedCity);
 
   if (currentStep === 1) {
     return (
@@ -133,10 +141,14 @@ export const StepForm = ({ form, currentStep }: StepFormProps): JSX.Element => {
               {...register("regionCity")}
             >
               <option value="">请选择城市</option>
-              {regionCaps.map((region) => (
-                <option key={region.city} value={region.city}>
-                  {region.city}
-                </option>
+              {regionOptions.map((group) => (
+                <optgroup key={group.province} label={group.province}>
+                  {group.cities.map((city) => (
+                    <option key={`${group.province}-${city}`} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
@@ -144,7 +156,11 @@ export const StepForm = ({ form, currentStep }: StepFormProps): JSX.Element => {
         <Field
           label="当地上年度职工月平均工资的 3 倍"
           htmlFor="capMonthlyWage"
-          hint="选择城市后会带出示例值；你可以在获取官方数据后手动覆盖。"
+          hint={
+            edition === "paid"
+              ? "完整版会匹配已维护城市标准；未收录时仍须按当地官方数据手动填写。"
+              : "免费版不自动填充，请按当地官方数据手动填写。"
+          }
           error={errors.capMonthlyWage?.message}
           required
         >
@@ -158,12 +174,20 @@ export const StepForm = ({ form, currentStep }: StepFormProps): JSX.Element => {
             {...register("capMonthlyWage", { valueAsNumber: true })}
           />
         </Field>
-        {selectedRegion ? (
+        {edition === "paid" && selectedRegion ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
             <p className="font-semibold">{selectedRegion.city} · 示例数据</p>
             <p className="mt-1">
               {selectedRegion.dataYear}；{selectedRegion.source}
               。正式使用前必须用官方最新数据复核。
+            </p>
+          </div>
+        ) : null}
+        {edition === "paid" && selectedCity && !selectedRegion ? (
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
+            <p className="font-semibold">当前城市暂未收录可自动匹配的标准</p>
+            <p className="mt-1">
+              请查询当地人社或统计部门公布的官方数据后填写，系统不会用邻近城市数值代替。
             </p>
           </div>
         ) : null}

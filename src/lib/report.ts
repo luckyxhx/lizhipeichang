@@ -1,4 +1,10 @@
 import { product } from "@/config/product";
+import {
+  buildStandardQueryPrompt,
+  evidenceChecklist,
+  negotiationScript,
+} from "@/content/paidMaterials";
+import { getRegionCap } from "@/data/regions";
 import { formatCurrency, formatDate, formatNumber } from "@/lib/format";
 import {
   getOfficialLegalSource,
@@ -23,6 +29,7 @@ export const buildReportText = (
   input: CalculationInput,
   result: CalculationResult,
 ): string => {
+  const region = getRegionCap(input.regionCity);
   const articleIds = [
     ...new Set([...result.relevantArticleIds, ...(input.hasWrittenContract ? [] : [82])]),
   ];
@@ -68,6 +75,20 @@ export const buildReportText = (
     `+1 金额：${formatCurrency(result.plusOneAmount)}`,
     `2N 金额：${formatCurrency(result.doubleNBaseAmount)}`,
     "",
+    "【城市标准匹配】",
+    region
+      ? `${input.regionCity}：三倍封顶线 ${formatCurrency(
+          region.capMonthlyWage,
+        )}；适用年度 ${region.dataYear}；来源 ${region.source}`
+      : `${input.regionCity}：当前未收录可自动匹配的标准，请按官方来源手动核对。`,
+    region ? "" : buildStandardQueryPrompt(input.regionCity),
+    "",
+    "【离职谈判话术卡】",
+    listLine([...negotiationScript]),
+    "",
+    "【仲裁举证清单】",
+    listLine([...evidenceChecklist]),
+    "",
     "【法律依据】",
     "官方来源：",
     listLine(officialSources),
@@ -85,3 +106,38 @@ export const buildReportText = (
     product.disclaimer,
   ].join("\n");
 };
+
+export const buildFreeReportText = (
+  input: CalculationInput,
+  result: CalculationResult,
+): string =>
+  [
+    `【${product.name} · ${product.editions.free.name}】`,
+    "",
+    `适用结论：${result.rule}`,
+    `预估金额区间：${formatCurrency(result.estimateMin)} - ${formatCurrency(
+      result.estimateMax,
+    )}`,
+    `基准金额：${formatCurrency(result.exactAmount)}`,
+    "",
+    "【核心计算】",
+    `入职日期：${formatDate(input.startDate)}`,
+    `离职日期：${formatDate(input.endDate)}`,
+    `工作年限：${result.service.summary}`,
+    `计入 N 的月数：${formatNumber(result.service.nUnits)}`,
+    `月平均工资：${formatCurrency(result.monthlyAverageWage)}`,
+    `计算用月工资：${formatCurrency(result.calculatedMonthlyWage)}`,
+    `N 金额：${formatCurrency(result.nAmount)}`,
+    `+1 金额：${formatCurrency(result.plusOneAmount)}`,
+    `2N 金额：${formatCurrency(result.doubleNBaseAmount)}`,
+    "",
+    "【结论说明】",
+    result.ruleReason,
+    "",
+    `完整版（${product.editions.paid.priceNote}）包含：${product.editions.paid.features.join(
+      "、",
+    )}。`,
+    "",
+    "【免责声明】",
+    product.disclaimer,
+  ].join("\n");

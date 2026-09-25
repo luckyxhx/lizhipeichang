@@ -1,6 +1,29 @@
 export const product = {
   name: "离职赔偿计算系统",
   tagline: "用几分钟完成第一轮离职补偿估算",
+  editions: {
+    free: {
+      id: "free",
+      name: "免费版",
+      priceNote: "免费领取",
+      deliveryNote: "关注后自动发送简易计算器链接。",
+      summary: "输入核心信息，快速算出 N、N+1、2N 的估算结果。",
+      features: ["基础金额区间", "N、N+1、2N 适用结论", "简版测算卡打印或保存 PDF"],
+    },
+    paid: {
+      id: "paid",
+      name: "完整版",
+      priceNote: "9.9 元",
+      deliveryNote: "购买后发放带访问权限的专属链接。",
+      summary: "在免费版基础上，生成可留存的完整测算与沟通材料。",
+      features: [
+        "《赔偿测算报告》完整 PDF",
+        "全国城市社平工资定位与匹配",
+        "离职谈判话术卡",
+        "仲裁举证清单",
+      ],
+    },
+  },
   supportContact: "请在小红书店铺联系客服（发布前请替换为真实联系方式）",
   purchaseHint: "购买后，客服会发送带访问 token 的专属链接。",
   storeUrl: "",
