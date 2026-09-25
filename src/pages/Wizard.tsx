@@ -70,11 +70,15 @@ export const Wizard = ({
 
   useEffect(() => {
     const region = getRegionCap(selectedCity);
-    if (edition === "paid" && region && selectedCity !== previousCity.current) {
-      setValue("capMonthlyWage", region.capMonthlyWage, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
+    if (selectedCity !== previousCity.current) {
+      setValue(
+        "capMonthlyWage",
+        edition === "paid" && region ? region.capMonthlyWage : 0,
+        {
+          shouldDirty: true,
+          shouldValidate: true,
+        },
+      );
     }
     previousCity.current = selectedCity;
   }, [edition, selectedCity, setValue]);

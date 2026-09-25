@@ -112,7 +112,7 @@ export const Result = ({
         <CalcBreakdown input={input} result={result} />
         {edition === "paid" ? (
           <>
-            <PaidExtras input={input} />
+            <PaidExtras />
             <LegalBasis input={input} result={result} />
             <RiskTips warnings={result.warnings} />
             <ActionChecklist />

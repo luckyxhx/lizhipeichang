@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Controller, type UseFormReturn } from "react-hook-form";
-import { Search } from "lucide-react";
+import { Copy, MapPin, Search } from "lucide-react";
 
+import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
+import { buildStandardQueryPrompt } from "@/content/paidMaterials";
 import { regionCaps } from "@/data/regions";
 import { regionOptions } from "@/data/regionOptions";
 import { getTerminationRule } from "@/lib/legalRules";
@@ -43,6 +46,9 @@ const reasonOrder: TerminationReason[] = [
 ];
 
 export const StepForm = ({ edition, form, currentStep }: StepFormProps): JSX.Element => {
+  const [promptCopyState, setPromptCopyState] = useState<"idle" | "copied" | "failed">(
+    "idle",
+  );
   const {
     register,
     watch,
@@ -54,6 +60,20 @@ export const StepForm = ({ edition, form, currentStep }: StepFormProps): JSX.Ele
   const writtenNoticeProvided = watch("writtenNoticeProvided");
   const selectedCity = watch("regionCity");
   const selectedRegion = regionCaps.find((region) => region.city === selectedCity);
+  const standardQueryPrompt = selectedCity ? buildStandardQueryPrompt(selectedCity) : "";
+
+  const copyStandardQueryPrompt = async (): Promise<void> => {
+    if (!standardQueryPrompt) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(standardQueryPrompt);
+      setPromptCopyState("copied");
+    } catch {
+      setPromptCopyState("failed");
+    }
+  };
 
   if (currentStep === 1) {
     return (
@@ -153,6 +173,54 @@ export const StepForm = ({ edition, form, currentStep }: StepFormProps): JSX.Ele
             </select>
           </div>
         </Field>
+        {selectedCity ? (
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
+            <div className="flex items-start gap-3">
+              <MapPin
+                className="mt-0.5 size-5 shrink-0 text-brand-600"
+                aria-hidden="true"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-slate-900">城市标准匹配</p>
+                {edition === "paid" && selectedRegion ? (
+                  <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-950">
+                    <p className="font-bold">
+                      自动匹配三倍封顶线：
+                      {selectedRegion.capMonthlyWage.toLocaleString("zh-CN")} 元
+                    </p>
+                    <p className="mt-1">
+                      适用年度：{selectedRegion.dataYear}；来源：{selectedRegion.source}
+                    </p>
+                    <p className="mt-1">
+                      当前数据仍标记为示例，正式使用前必须按官方最新数据复核。
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="mt-1">
+                      {edition === "paid"
+                        ? "当前城市尚未收录可自动匹配的标准。请查询当地人社、统计或法院官方来源后手动填写，不要使用邻近城市或未经核实的网络数值替代。"
+                        : "免费版不自动匹配当地标准。请复制提示词查询官方数据，再手动填写封顶线。"}
+                    </p>
+                    <Button
+                      className="mt-3 w-full sm:w-auto"
+                      variant="secondary"
+                      type="button"
+                      onClick={copyStandardQueryPrompt}
+                    >
+                      <Copy className="size-4" aria-hidden="true" />
+                      {promptCopyState === "copied"
+                        ? "提示词已复制"
+                        : promptCopyState === "failed"
+                          ? "复制失败"
+                          : "复制官方标准查询提示词"}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
         <Field
           label="当地上年度职工月平均工资的 3 倍"
           htmlFor="capMonthlyWage"
@@ -174,23 +242,6 @@ export const StepForm = ({ edition, form, currentStep }: StepFormProps): JSX.Ele
             {...register("capMonthlyWage", { valueAsNumber: true })}
           />
         </Field>
-        {edition === "paid" && selectedRegion ? (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-            <p className="font-semibold">{selectedRegion.city} · 示例数据</p>
-            <p className="mt-1">
-              {selectedRegion.dataYear}；{selectedRegion.source}
-              。正式使用前必须用官方最新数据复核。
-            </p>
-          </div>
-        ) : null}
-        {edition === "paid" && selectedCity && !selectedRegion ? (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
-            <p className="font-semibold">当前城市暂未收录可自动匹配的标准</p>
-            <p className="mt-1">
-              请查询当地人社或统计部门公布的官方数据后填写，系统不会用邻近城市数值代替。
-            </p>
-          </div>
-        ) : null}
       </div>
     );
   }
