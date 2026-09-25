@@ -52,7 +52,11 @@ export const App = (): JSX.Element => {
   return (
     <AppShell>
       {screen === "home" ? (
-        <Home edition={access.edition} onStart={() => setScreen("wizard")} />
+        <Home
+          edition={access.edition}
+          expiresAt={access.expiresAt}
+          onStart={() => setScreen("wizard")}
+        />
       ) : (
         <Wizard
           edition={access.edition}

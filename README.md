@@ -92,8 +92,8 @@ npm run wechat:test
 在 `.env.local` 或部署平台的环境变量中配置：
 
 ```env
-VITE_ALLOWED_TOKENS=free123,free456
-VITE_PAID_TOKENS=paid123,paid456
+VITE_ALLOWED_TOKENS=free123@2027-12-31T23:59:59+08:00,free456
+VITE_PAID_TOKENS=paid123@2027-12-31T23:59:59+08:00,paid456
 ```
 
 规则：
@@ -102,6 +102,8 @@ VITE_PAID_TOKENS=paid123,paid456
 - 访问链接必须带 `?token=...`。
 - `VITE_ALLOWED_TOKENS` 中的 token 进入免费版。
 - `VITE_PAID_TOKENS` 中的 token 进入完整版；完整版 token 优先于免费版 token。
+- token 后可以用 `@` 追加 ISO 8601 有效期；不追加 `@` 时永久有效。
+- 过期 token 会按未授权处理，即使 token 名称仍然相同。
 - token 不匹配、缺失或环境变量为空时，显示购买提示页。
 - 修改 token 后需要重新构建和部署，才能让新列表生效。
 
@@ -119,6 +121,20 @@ VITE_PAID_TOKENS=paid123,paid456
 https://你的域名/?token=免费版token
 https://你的域名/?token=完整版token
 ```
+
+生成带 30 天有效期的订单 token：
+
+```bash
+node -e "const crypto=require('crypto'); const token='paid_'+crypto.randomBytes(16).toString('hex'); const expiresAt=new Date(Date.now()+30*86400000).toISOString(); console.log(token+'@'+expiresAt)"
+```
+
+例如输出：
+
+```text
+paid_8f2c...@2026-10-25T12:00:00.000Z
+```
+
+把输出结果写入 `VITE_PAID_TOKENS`，然后把 `@` 前面的 token 作为访问链接参数。当前过期校验在浏览器中执行，能够满足普通 MVP 使用，但技术人员仍可通过修改前端代码绕过。需要不可绕过的有效期和撤销能力时，必须使用 Cloudflare Worker + KV 或服务端校验。
 
 ## H5 两个版本
 

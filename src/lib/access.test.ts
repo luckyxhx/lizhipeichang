@@ -5,6 +5,7 @@ import {
   getTokenFromSearch,
   isTokenAllowed,
   parseAllowedTokens,
+  parseTokenRules,
   resolveAccess,
 } from "@/lib/access";
 
@@ -54,6 +55,38 @@ describe("access", () => {
       authorized: false,
       edition: "free",
       tokenConfigured: true,
+    });
+  });
+
+  it("支持带 ISO 有效期的 token", () => {
+    const rules = parseTokenRules(
+      "free123@2026-12-31T23:59:59+08:00,paid123@2026-12-31T23:59:59+08:00",
+    );
+
+    expect(rules).toHaveLength(2);
+    expect(rules[1]).toMatchObject({
+      token: "paid123",
+      expiresAt: Date.parse("2026-12-31T23:59:59+08:00"),
+    });
+  });
+
+  it("有效期结束后不再授权", () => {
+    const paidToken = "paid123@2026-12-31T23:59:59+08:00";
+    const beforeExpiry = Date.parse("2026-12-30T00:00:00+08:00");
+    const afterExpiry = Date.parse("2027-01-01T00:00:00+08:00");
+
+    expect(
+      resolveAccess("?token=paid123", undefined, paidToken, beforeExpiry),
+    ).toMatchObject({
+      authorized: true,
+      edition: "paid",
+      expiresAt: Date.parse("2026-12-31T23:59:59+08:00"),
+    });
+    expect(
+      resolveAccess("?token=paid123", undefined, paidToken, afterExpiry),
+    ).toMatchObject({
+      authorized: false,
+      edition: "free",
     });
   });
 });

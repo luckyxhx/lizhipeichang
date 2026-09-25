@@ -2,11 +2,38 @@ import type { ProductEdition } from "@/types";
 
 const normalizeToken = (token: string | null): string => token?.trim() ?? "";
 
+export interface TokenRule {
+  token: string;
+  expiresAt: number | null;
+}
+
 export const parseAllowedTokens = (rawValue: string | undefined): string[] =>
   (rawValue ?? "")
     .split(",")
     .map((token) => token.trim())
     .filter(Boolean);
+
+export const parseTokenRules = (rawValue: string | undefined): TokenRule[] => {
+  const rules: TokenRule[] = [];
+
+  parseAllowedTokens(rawValue).forEach((entry) => {
+    const separatorIndex = entry.lastIndexOf("@");
+    if (separatorIndex < 0) {
+      rules.push({ token: entry, expiresAt: null });
+      return;
+    }
+
+    const token = entry.slice(0, separatorIndex).trim();
+    const expiryValue = entry.slice(separatorIndex + 1).trim();
+    const expiresAt = Date.parse(expiryValue);
+
+    if (token && Number.isFinite(expiresAt)) {
+      rules.push({ token, expiresAt });
+    }
+  });
+
+  return rules;
+};
 
 export const getTokenFromSearch = (search: string): string =>
   normalizeToken(new URLSearchParams(search).get("token"));
@@ -20,7 +47,11 @@ export const isTokenAllowed = (
     return false;
   }
 
-  return parseAllowedTokens(allowedTokensValue).includes(normalizedToken);
+  return parseTokenRules(allowedTokensValue).some(
+    (rule) =>
+      rule.token === normalizedToken &&
+      (rule.expiresAt === null || rule.expiresAt > Date.now()),
+  );
 };
 
 export interface AccessResolution {
@@ -28,33 +59,45 @@ export interface AccessResolution {
   edition: ProductEdition;
   token: string;
   tokenConfigured: boolean;
+  expiresAt: number | null;
 }
 
 export const resolveAccess = (
   search: string,
   allowedTokensValue: string | undefined,
   paidTokensValue: string | undefined,
+  now = Date.now(),
 ): AccessResolution => {
   const token = getTokenFromSearch(search);
-  const freeTokens = parseAllowedTokens(allowedTokensValue);
-  const paidTokens = parseAllowedTokens(paidTokensValue);
-  const tokenConfigured = freeTokens.length > 0 || paidTokens.length > 0;
+  const freeTokenRules = parseTokenRules(allowedTokensValue);
+  const paidTokenRules = parseTokenRules(paidTokensValue);
+  const tokenConfigured =
+    parseAllowedTokens(allowedTokensValue).length > 0 ||
+    parseAllowedTokens(paidTokensValue).length > 0;
 
-  if (token && paidTokens.includes(token)) {
+  const activePaidToken = paidTokenRules.find(
+    (rule) => rule.token === token && (rule.expiresAt === null || rule.expiresAt > now),
+  );
+  if (token && activePaidToken) {
     return {
       authorized: true,
       edition: "paid",
       token,
       tokenConfigured,
+      expiresAt: activePaidToken.expiresAt,
     };
   }
 
-  if (token && freeTokens.includes(token)) {
+  const activeFreeToken = freeTokenRules.find(
+    (rule) => rule.token === token && (rule.expiresAt === null || rule.expiresAt > now),
+  );
+  if (token && activeFreeToken) {
     return {
       authorized: true,
       edition: "free",
       token,
       tokenConfigured,
+      expiresAt: activeFreeToken.expiresAt,
     };
   }
 
@@ -63,6 +106,7 @@ export const resolveAccess = (
     edition: "free",
     token,
     tokenConfigured,
+    expiresAt: null,
   };
 };
 
