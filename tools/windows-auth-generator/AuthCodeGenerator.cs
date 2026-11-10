@@ -37,6 +37,12 @@ namespace LiZhiPeiChang.AuthGenerator
                 return;
             }
 
+            if (args.Length >= 1 && args[0] == "--csv-self-test")
+            {
+                Environment.ExitCode = MainForm.RunCsvSelfTest();
+                return;
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
@@ -192,6 +198,25 @@ namespace LiZhiPeiChang.AuthGenerator
                     return 4;
                 }
             }
+        }
+
+        internal static int RunCsvSelfTest()
+        {
+            List<GeneratedCodeRow> rows = new List<GeneratedCodeRow>();
+            rows.Add(new GeneratedCodeRow
+            {
+                Id = "code_test",
+                Code = "LZ-TEST-0001",
+                Label = "订单,001",
+                MaxDevices = 2,
+                ExpiresAt = String.Empty
+            });
+            string csv = BuildExportContent(true, rows);
+            return csv.IndexOf("订单备注", StringComparison.Ordinal) >= 0 &&
+                   csv.IndexOf("\"订单,001\"", StringComparison.Ordinal) >= 0 &&
+                   csv.IndexOf("LZ-TEST-0001", StringComparison.Ordinal) >= 0
+                ? 0
+                : 1;
         }
 
         private void BuildInterface()
@@ -713,59 +738,9 @@ namespace LiZhiPeiChang.AuthGenerator
                     bool csv = dialog.FileName.EndsWith(
                         ".csv",
                         StringComparison.OrdinalIgnoreCase);
-                    StringBuilder content = new StringBuilder();
-                    if (csv)
-                    {
-                        content.AppendLine("序号,订单备注,授权码,记录ID,设备上限,有效期,登录地址");
-                    }
-                    else
-                    {
-                        content.AppendLine("序号\t订单备注\t授权码\t记录ID\t设备上限\t有效期\t登录地址");
-                    }
-
-                    for (int index = 0; index < generatedRows.Count; index += 1)
-                    {
-                        GeneratedCodeRow row = generatedRows[index];
-                        string expires = String.IsNullOrWhiteSpace(row.ExpiresAt)
-                            ? "永久"
-                            : row.ExpiresAt;
-                        if (csv)
-                        {
-                            content.AppendLine(
-                                String.Join(
-                                    ",",
-                                    new string[]
-                                    {
-                                        (index + 1).ToString(CultureInfo.InvariantCulture),
-                                        CsvEscape(row.Label),
-                                        CsvEscape(row.Code),
-                                        CsvEscape(row.Id),
-                                        row.MaxDevices.ToString(CultureInfo.InvariantCulture),
-                                        CsvEscape(expires),
-                                        CsvEscape(LoginUrl)
-                                    }));
-                        }
-                        else
-                        {
-                            content.AppendLine(
-                                String.Join(
-                                    "\t",
-                                    new string[]
-                                    {
-                                        (index + 1).ToString(CultureInfo.InvariantCulture),
-                                        row.Label,
-                                        row.Code,
-                                        row.Id,
-                                        row.MaxDevices.ToString(CultureInfo.InvariantCulture),
-                                        expires,
-                                        LoginUrl
-                                    }));
-                        }
-                    }
-
                     File.WriteAllText(
                         dialog.FileName,
-                        content.ToString(),
+                        BuildExportContent(csv, generatedRows),
                         new UTF8Encoding(true));
                     SetStatus("导出成功：" + dialog.FileName, false);
                 }
@@ -774,6 +749,63 @@ namespace LiZhiPeiChang.AuthGenerator
                     SetStatus("导出失败：" + ex.Message, true);
                 }
             }
+        }
+
+        private static string BuildExportContent(
+            bool csv,
+            List<GeneratedCodeRow> rows)
+        {
+            StringBuilder content = new StringBuilder();
+            if (csv)
+            {
+                content.AppendLine("序号,订单备注,授权码,记录ID,设备上限,有效期,登录地址");
+            }
+            else
+            {
+                content.AppendLine("序号\t订单备注\t授权码\t记录ID\t设备上限\t有效期\t登录地址");
+            }
+
+            for (int index = 0; index < rows.Count; index += 1)
+            {
+                GeneratedCodeRow row = rows[index];
+                string expires = String.IsNullOrWhiteSpace(row.ExpiresAt)
+                    ? "永久"
+                    : row.ExpiresAt;
+                if (csv)
+                {
+                    content.AppendLine(
+                        String.Join(
+                            ",",
+                            new string[]
+                            {
+                                (index + 1).ToString(CultureInfo.InvariantCulture),
+                                CsvEscape(row.Label),
+                                CsvEscape(row.Code),
+                                CsvEscape(row.Id),
+                                row.MaxDevices.ToString(CultureInfo.InvariantCulture),
+                                CsvEscape(expires),
+                                CsvEscape(LoginUrl)
+                            }));
+                }
+                else
+                {
+                    content.AppendLine(
+                        String.Join(
+                            "\t",
+                            new string[]
+                            {
+                                (index + 1).ToString(CultureInfo.InvariantCulture),
+                                row.Label,
+                                row.Code,
+                                row.Id,
+                                row.MaxDevices.ToString(CultureInfo.InvariantCulture),
+                                expires,
+                                LoginUrl
+                            }));
+                }
+            }
+
+            return content.ToString();
         }
 
         private bool TryBuildGenerateCommand(
