@@ -204,6 +204,7 @@ https://h5.shuzi8.com
 
 ```bash
 sudo lizhipeichang-h5-admin create --label xhs-order-001
+sudo lizhipeichang-h5-admin create-batch --prefix xhs-batch --count 10
 sudo lizhipeichang-h5-admin list
 sudo lizhipeichang-h5-admin reset-devices --id code_xxxx
 sudo lizhipeichang-h5-admin revoke --id code_xxxx
@@ -218,6 +219,30 @@ sudo lizhipeichang-h5-admin create \
 ```
 
 设备限制由服务器 Cookie 识别浏览器。用户清除 Cookie、换浏览器或换手机后，可能被识别为新设备。它不是硬件级 DRM，足以拦截普通分享和超额使用。
+
+### Windows 授权码生成器
+
+Windows 桌面工具位于：
+
+```text
+tools/windows-auth-generator/release/离职赔偿授权码生成器.exe
+```
+
+双击运行后：
+
+1. 确认 SSH 私钥路径，默认 `%USERPROFILE%\.ssh\refa_deploy2`。
+2. 填写订单备注或用途。
+3. 设置生成数量（1 到 50）；自定义授权码仅支持单个生成。
+4. 可选设置有效期，然后生成授权码。
+5. 结果可一键复制，或导出 CSV，保存订单备注、授权码、记录 ID、设备上限和有效期。
+
+设备上限固定为 2 台。exe 不包含 SSH 私钥或服务器密钥，也不会在本地保存授权码历史；生成动作通过 SSH 在服务器执行。使用前需要保证当前电脑可以连接服务器 22 端口，并且私钥拥有对应的 sudo 权限。
+
+重新构建：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\windows-auth-generator\build.ps1
+```
 
 腾讯部署相关文件：
 

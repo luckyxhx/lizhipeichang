@@ -89,6 +89,32 @@ test("重置设备后可以重新绑定", () => {
   }
 });
 
+test("批量生成返回唯一授权码和连续标签", () => {
+  const fixture = createFixture();
+  try {
+    const results = fixture.store.createCodeBatch({
+      labelPrefix: "xhs-batch",
+      count: 5,
+    });
+
+    assert.equal(results.length, 5);
+    assert.equal(new Set(results.map((item) => item.code)).size, 5);
+    assert.deepEqual(
+      results.map((item) => item.record.label),
+      [
+        "xhs-batch-001",
+        "xhs-batch-002",
+        "xhs-batch-003",
+        "xhs-batch-004",
+        "xhs-batch-005",
+      ],
+    );
+    assert.equal(fixture.store.listCodes().length, 5);
+  } finally {
+    rmSync(fixture.directory, { recursive: true, force: true });
+  }
+});
+
 test("过期和停用授权码不再通过", () => {
   const fixture = createFixture();
   try {

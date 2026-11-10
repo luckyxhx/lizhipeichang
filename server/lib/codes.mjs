@@ -165,6 +165,63 @@ export const createAuthStore = ({
     };
   };
 
+  const createCodeBatch = ({
+    labelPrefix,
+    count,
+    expiresAt = null,
+    deviceLimit = maxDevices,
+  }) => {
+    const normalizedPrefix = String(labelPrefix ?? "").trim();
+    if (!normalizedPrefix) {
+      throw new Error("A label prefix is required");
+    }
+    if (!Number.isInteger(count) || count < 1 || count > 50) {
+      throw new Error("Batch count must be an integer between 1 and 50");
+    }
+    if (
+      expiresAt !== null &&
+      (!Number.isFinite(Date.parse(expiresAt)) || Date.parse(expiresAt) <= clock())
+    ) {
+      throw new Error("expiresAt must be a future ISO date");
+    }
+    if (!Number.isInteger(deviceLimit) || deviceLimit < 1 || deviceLimit > 10) {
+      throw new Error("deviceLimit must be an integer between 1 and 10");
+    }
+
+    const store = readStore();
+    const created = [];
+    const nowIso = new Date(clock()).toISOString();
+    const expiresAtIso = expiresAt ? new Date(expiresAt).toISOString() : null;
+
+    for (let index = 1; index <= count; index += 1) {
+      let code;
+      let codeHash;
+      do {
+        code = generateAuthorizationCode();
+        codeHash = digest(secret, "code", code);
+      } while (findRecordByHash(store, codeHash));
+
+      const record = {
+        id: `code_${randomUUID().replace(/-/g, "").slice(0, 12)}`,
+        codeHash,
+        label: `${normalizedPrefix}-${String(index).padStart(3, "0")}`,
+        createdAt: nowIso,
+        expiresAt: expiresAtIso,
+        revokedAt: null,
+        maxDevices: deviceLimit,
+        devices: [],
+      };
+      store.codes.push(record);
+      created.push({
+        code,
+        record: publicRecord(record, clock()),
+      });
+    }
+
+    writeStore(store);
+    return created;
+  };
+
   const redeemCode = ({ code, deviceId }) => {
     const normalizedCode = normalizeCode(code);
     const normalizedDeviceId = normalizeDeviceId(deviceId);
@@ -295,6 +352,7 @@ export const createAuthStore = ({
   return {
     filePath: absolutePath,
     createCode,
+    createCodeBatch,
     redeemCode,
     resolveSession,
     listCodes,

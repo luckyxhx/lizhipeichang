@@ -31,6 +31,9 @@ const parseCommand = (args) =>
       expires: { type: "string" },
       "max-devices": { type: "string" },
       id: { type: "string" },
+      count: { type: "string" },
+      prefix: { type: "string" },
+      format: { type: "string" },
     },
     allowPositionals: false,
     strict: true,
@@ -56,6 +59,14 @@ const printList = () => {
   }
 };
 
+const toOutputRecord = (item) => ({
+  id: item.record.id,
+  code: item.code,
+  label: item.record.label,
+  maxDevices: item.record.maxDevices,
+  expiresAt: item.record.expiresAt,
+});
+
 try {
   if (command === "create") {
     const values = parseCommand(rest);
@@ -70,11 +81,43 @@ try {
       expiresAt: values.expires ?? null,
       deviceLimit,
     });
-    console.log(`id=${result.record.id}`);
-    console.log(`code=${result.code}`);
-    console.log(`label=${result.record.label}`);
-    console.log(`maxDevices=${result.record.maxDevices}`);
-    console.log(`expiresAt=${result.record.expiresAt ?? "never"}`);
+    if (values.format === "json") {
+      console.log(JSON.stringify(toOutputRecord(result)));
+    } else {
+      console.log(`id=${result.record.id}`);
+      console.log(`code=${result.code}`);
+      console.log(`label=${result.record.label}`);
+      console.log(`maxDevices=${result.record.maxDevices}`);
+      console.log(`expiresAt=${result.record.expiresAt ?? "never"}`);
+    }
+  } else if (command === "create-batch") {
+    const values = parseCommand(rest);
+    if (!values.prefix) {
+      throw new Error("--prefix is required");
+    }
+    const count = Number(values.count ?? 1);
+    const deviceLimit = Number(values["max-devices"] ?? 2);
+    const results = store.createCodeBatch({
+      labelPrefix: values.prefix,
+      count,
+      expiresAt: values.expires ?? null,
+      deviceLimit,
+    });
+    if (values.format === "json") {
+      console.log(JSON.stringify(results.map(toOutputRecord)));
+    } else {
+      for (const item of results) {
+        console.log(
+          [
+            item.code,
+            item.record.label,
+            item.record.id,
+            item.record.maxDevices,
+            item.record.expiresAt ?? "never",
+          ].join("\t"),
+        );
+      }
+    }
   } else if (command === "list") {
     printList();
   } else if (command === "reset-devices") {
@@ -99,7 +142,8 @@ try {
     console.log(
       [
         "Usage:",
-        "  node server/admin-codes.mjs create --label <order-label> [--code <code>] [--expires <ISO>] [--max-devices 2]",
+        "  node server/admin-codes.mjs create --label <order-label> [--code <code>] [--expires <ISO>] [--max-devices 2] [--format json]",
+        "  node server/admin-codes.mjs create-batch --prefix <order-prefix> --count <1-50> [--expires <ISO>] [--max-devices 2] [--format json]",
         "  node server/admin-codes.mjs list",
         "  node server/admin-codes.mjs reset-devices --id <code-id>",
         "  node server/admin-codes.mjs revoke --id <code-id>",
