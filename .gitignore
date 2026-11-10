@@ -4,6 +4,10 @@ dist
 .env.local
 *.local
 coverage
+tmp
+.deploy
+server/data/*.json
+server/data/*.tmp
 .DS_Store
 
 .vercel

@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite --port 5173",
     "build": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build",
+    "build:tencent": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build --base=/app/",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "test:server": "node --test server/tests/codes.test.mjs server/tests/sessions.test.mjs server/tests/server.integration.test.mjs",
     "wechat:test": "node --test miniprogram/tests/calc.test.cjs",
     "test:watch": "vitest",
     "preview": "vite preview"

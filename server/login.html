@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#f8fafc" />
+    <title>授权访问｜离职赔偿计算系统</title>
+    <style>
+      :root {
+        color: #172033;
+        background: #f8fafc;
+        font-family:
+          "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 24px 16px;
+        background: linear-gradient(#0f766e 0 5px, transparent 5px), #f8fafc;
+      }
+
+      main {
+        width: min(100%, 480px);
+        margin: 8vh auto 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #0f766e;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 8px;
+        color: #fff;
+        background: #0f766e;
+      }
+
+      .card {
+        margin-top: 22px;
+        padding: 26px 22px;
+        border: 1px solid #dbe3e8;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 20px 50px rgb(15 23 42 / 8%);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(25px, 7vw, 32px);
+        line-height: 1.25;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        margin: 12px 0 0;
+        color: #5f6b7a;
+        font-size: 14px;
+        line-height: 1.75;
+      }
+
+      form {
+        margin-top: 24px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      input {
+        width: 100%;
+        min-height: 52px;
+        padding: 0 14px;
+        border: 1px solid #cbd5df;
+        border-radius: 8px;
+        color: #172033;
+        background: #fff;
+        font: inherit;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        outline: none;
+      }
+
+      input:focus {
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3px rgb(15 118 110 / 12%);
+      }
+
+      button {
+        width: 100%;
+        min-height: 52px;
+        margin-top: 14px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: #0f766e;
+        font: inherit;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #115e59;
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.65;
+      }
+
+      .status {
+        min-height: 22px;
+        margin-top: 12px;
+        color: #b45309;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .rules {
+        margin: 18px 0 0;
+        padding: 16px 0 0;
+        border-top: 1px solid #e5eaf0;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .rules strong {
+        color: #334155;
+      }
+
+      .footer {
+        margin: 16px 4px 0;
+        color: #8491a1;
+        font-size: 11px;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 420px) {
+        body {
+          padding: 18px 14px;
+        }
+
+        main {
+          margin-top: 4vh;
+        }
+
+        .card {
+          padding: 22px 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="brand">
+        <span class="mark" aria-hidden="true">法</span>
+        <span>离职赔偿计算系统</span>
+      </div>
+
+      <section class="card" aria-labelledby="title">
+        <h1 id="title">输入授权码，打开完整版</h1>
+        <p class="lead">
+          授权码由店铺客服随订单发放。首次验证后会绑定当前浏览器，同一授权码最多可在 2
+          台设备上使用。
+        </p>
+
+        <form id="access-form">
+          <label for="code">授权码</label>
+          <input
+            id="code"
+            name="code"
+            type="text"
+            inputmode="text"
+            autocomplete="one-time-code"
+            autocapitalize="characters"
+            spellcheck="false"
+            placeholder="LZ-XXXX-XXXX"
+            maxlength="64"
+            required
+          />
+          <button id="submit-button" type="submit">验证并进入</button>
+          <div id="status" class="status" role="status" aria-live="polite"></div>
+        </form>
+
+        <p class="rules">
+          <strong>使用说明</strong><br />
+          请保留客服发送的完整授权码。更换手机、浏览器或清除本站 Cookie
+          后，可能被识别为新设备。
+        </p>
+      </section>
+
+      <p class="footer">
+        本工具提供第一轮估算，不构成正式法律意见。遇到复杂条款、证据争议或时效问题，请咨询当地劳动仲裁机构或律师。
+      </p>
+    </main>
+
+    <script>
+      const form = document.querySelector("#access-form");
+      const input = document.querySelector("#code");
+      const button = document.querySelector("#submit-button");
+      const status = document.querySelector("#status");
+
+      const messages = {
+        invalid_code: "授权码无效，请核对后重试。",
+        expired_code: "授权码已过期，请联系店铺客服。",
+        revoked_code: "授权码已停用，请联系店铺客服。",
+        device_limit: "该授权码已绑定 2 台设备，请联系客服处理。",
+        rate_limited: "尝试次数过多，请稍后再试。",
+        invalid_request: "提交内容无法识别，请刷新页面后重试。",
+        server_error: "服务器暂时不可用，请稍后再试。",
+      };
+
+      const setStatus = (message, isError = true) => {
+        status.textContent = message;
+        status.style.color = isError ? "#b45309" : "#0f766e";
+      };
+
+      const setLoading = (loading) => {
+        button.disabled = loading;
+        button.textContent = loading ? "正在验证…" : "验证并进入";
+      };
+
+      const readError = async (response) => {
+        try {
+          const data = await response.json();
+          return data.error || "server_error";
+        } catch {
+          return "server_error";
+        }
+      };
+
+      const checkExistingSession = async () => {
+        const response = await fetch("/api/session", {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
+        if (!response.ok) {
+          return;
+        }
+        const data = await response.json();
+        if (data.authorized && data.appUrl) {
+          setStatus("正在进入完整版…", false);
+          window.location.replace(data.appUrl);
+        }
+      };
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const code = input.value.trim();
+        if (!code) {
+          setStatus("请输入授权码。");
+          input.focus();
+          return;
+        }
+
+        setLoading(true);
+        setStatus("");
+        try {
+          const response = await fetch("/api/redeem", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          });
+          if (!response.ok) {
+            const errorCode = await readError(response);
+            setStatus(messages[errorCode] || messages.server_error);
+            return;
+          }
+
+          const data = await response.json();
+          setStatus("验证成功，正在进入完整版…", false);
+          window.location.replace(data.appUrl);
+        } catch {
+          setStatus("网络连接失败，请检查网络后重试。");
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      input.addEventListener("input", () => {
+        input.value = input.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
+      });
+
+      checkExistingSession().catch(() => {});
+    </script>
+  </body>
+</html>

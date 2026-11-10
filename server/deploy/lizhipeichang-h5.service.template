@@ -1,0 +1,21 @@
+[Unit]
+Description=LiZhi PeiChang H5 authorization server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/lizhipeichang-h5/current/server
+EnvironmentFile=/etc/lizhipeichang-h5.env
+ExecStart=__NODE_BIN__ /opt/lizhipeichang-h5/current/server/index.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/lizhipeichang-h5
+
+[Install]
+WantedBy=multi-user.target

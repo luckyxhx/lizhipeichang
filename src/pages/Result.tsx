@@ -14,6 +14,7 @@ import { CalcBreakdown } from "@/components/Report/CalcBreakdown";
 import { Disclaimer } from "@/components/Report/Disclaimer";
 import { LegalBasis } from "@/components/Report/LegalBasis";
 import { PaidExtras } from "@/components/Report/PaidExtras";
+import { ProductKit } from "@/components/Report/ProductKit";
 import { ReportHeader } from "@/components/Report/ReportHeader";
 import { RiskTips } from "@/components/Report/RiskTips";
 import { Button } from "@/components/ui/Button";
@@ -112,6 +113,7 @@ export const Result = ({
         <CalcBreakdown input={input} result={result} />
         {edition === "paid" ? (
           <>
+            <ProductKit />
             <PaidExtras />
             <LegalBasis input={input} result={result} />
             <RiskTips warnings={result.warnings} />

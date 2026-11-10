@@ -33,10 +33,12 @@ http://localhost:5173/?token=abc123
 
 ```bash
 npm test
+npm run test:server
 npm run wechat:test
 npm run lint
 npm run format:check
 npm run build
+npm run build:tencent
 npm run preview
 ```
 
@@ -154,14 +156,80 @@ paid_8f2c...@2026-10-25T12:00:00.000Z
 - 生成《赔偿测算报告》完整 PDF，可打印保存。
 - 全国省、地市城市选择；在地区步骤中即时显示匹配结果，并自动带出已维护城市的三倍封顶线。
 - 未收录城市不会使用邻近城市估价，而是提示查询官方来源。
-- 附带《离职谈判话术卡》和《仲裁举证清单》。
+- 附带《离职准备工具包》：
+  - 《离职协议与解除协议自查表》可编辑 Word。
+  - 《离职争议证据保存清单》可打印 PDF。
+  - 《离职谈判话术卡》可打印 PDF。
+  - 《离职流程时间轴》一页纸 PDF。
 - 通过 `VITE_PAID_TOKENS` 中的专属 token 访问。
 
 当前自动匹配数据只包含 `src/data/regions.ts` 中的人工维护条目。北京、上海、广州、深圳、杭州、成都、武汉、南京、西安、郑州当前仍是示例值，不能作为正式法律或财务依据。要实现全国城市准确匹配，必须继续录入当地官方来源、适用年度和三倍封顶线。
 
+### 完整版资料文件
+
+四项资料位于 `public/downloads/`，由以下脚本生成：
+
+```bash
+python tools/build_agreement_checklist.py
+python tools/build_pdf_kits.py
+```
+
+完整版报告页通过 `src/content/productKit.ts` 提供下载入口。文件地址是静态路径，知道完整地址的人可以绕过页面直接访问；如果后续需要严格按订单授权下载，必须把文件放到需要服务端鉴权的私有存储中。
+
+### 腾讯服务器授权码完整版
+
+腾讯服务器部署使用独立 Node 授权服务，完整版不再只依赖前端 token。当前线上地址：
+
+```text
+https://h5.shuzi8.com
+```
+
+访问流程：
+
+1. 用户在登录页输入授权码。
+2. Node 服务验证授权码，并记录当前浏览器的设备 Cookie。
+3. 同一授权码最多绑定 2 个设备；第 3 个设备返回 `device_limit`。
+4. 验证成功后写入 HttpOnly 会话 Cookie，再进入受保护的 `/app/`。
+5. 报告数据和四个下载文件都位于受保护路径，未通过会话校验时不能直接打开。
+
+授权码只保存 HMAC 哈希，不保存明文。设备记录只保存设备哈希、首次使用时间和最后使用时间。
+
+服务器授权数据默认位于：
+
+```text
+/var/lib/lizhipeichang-h5/auth-store.json
+```
+
+管理授权码：
+
+```bash
+sudo lizhipeichang-h5-admin create --label xhs-order-001
+sudo lizhipeichang-h5-admin list
+sudo lizhipeichang-h5-admin reset-devices --id code_xxxx
+sudo lizhipeichang-h5-admin revoke --id code_xxxx
+```
+
+新授权码默认限制 2 个设备、永久有效。需要有效期时增加 `--expires`：
+
+```bash
+sudo lizhipeichang-h5-admin create \
+  --label xhs-order-002 \
+  --expires 2027-12-31T23:59:59+08:00
+```
+
+设备限制由服务器 Cookie 识别浏览器。用户清除 Cookie、换浏览器或换手机后，可能被识别为新设备。它不是硬件级 DRM，足以拦截普通分享和超额使用。
+
+腾讯部署相关文件：
+
+- `server/index.mjs`：授权服务、静态资源保护和接口。
+- `server/admin-codes.mjs`：授权码管理命令。
+- `server/deploy/install.sh`：服务器安装脚本。
+- `server/deploy/gateway-h5.conf`：Docker Nginx 网关 HTTPS 配置。
+- `server/deploy/lizhipeichang-h5.service.template`：systemd 服务模板。
+
 ### 安全边界
 
-当前方案是前端 token 校验，只能拦截普通用户误访问，不能阻止技术人员查看打包后的 JavaScript。不要把它理解为强授权系统。
+H5 的 Vercel/静态版本仍使用前端 token 校验，只能拦截普通用户误访问，不能阻止技术人员查看打包后的 JavaScript。腾讯服务器版本使用服务端授权码和设备绑定，安全性更高，但设备身份仍依赖浏览器 Cookie。
 
 如果后续需要更强控制，建议升级为 Cloudflare Worker + KV：
 
@@ -171,6 +239,43 @@ paid_8f2c...@2026-10-25T12:00:00.000Z
 4. 前端不再保存 token 列表，可按订单生成、撤销和统计访问。
 
 ## 部署
+
+### 腾讯云轻量服务器（授权码模式）
+
+当前部署目标：
+
+```text
+服务器：43.142.106.42
+域名：https://h5.shuzi8.com
+应用目录：/opt/lizhipeichang-h5/current
+数据目录：/var/lib/lizhipeichang-h5
+服务：lizhipeichang-h5.service
+```
+
+构建：
+
+```bash
+npm run build:tencent
+```
+
+部署包需要包含：
+
+- `server/`：授权服务和授权码管理命令。
+- `client/`：`dist/` 的构建产物。
+- `deploy/`：安装脚本、systemd 模板、网关配置和环境变量文件。
+
+安装脚本会创建 `/opt/lizhipeichang-h5/releases/`、systemd 服务、Nginx 网关配置和授权数据目录。应用只监听宿主机 `3010` 端口，Docker 网关通过内部地址访问；公网不直接暴露 3010。
+
+首次签发证书：
+
+```bash
+sudo certbot certonly --webroot \
+  -w /home/ubuntu/refa-saas/infrastructure/nginx/acme \
+  -d h5.shuzi8.com \
+  --non-interactive --agree-tos --keep-until-expiring
+```
+
+证书存在后再次运行安装脚本，会切换到 HTTPS 网关配置并启用安全 Cookie。
 
 ### Vercel
 
